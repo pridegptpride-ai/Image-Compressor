@@ -59,7 +59,8 @@ body{
 .preview-compare{position:relative}
 .compare-viewport{position:relative;width:100%;height:360px;background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;contain:paint}
 .compare-viewport img{position:absolute;inset:0;margin:auto;width:100%;height:100%;object-fit:contain;image-rendering:auto;backface-visibility:hidden;transform:translateZ(0);pointer-events:none}
-.compare-viewport .overlay{position:absolute;top:0;left:0;bottom:0;width:var(--split,50%);overflow:hidden;will-change:width}
+/* Right side shows compressed using clip-path; left remains original */
+.compare-viewport .overlay{position:absolute;inset:0;clip-path:inset(0 0 0 var(--split,50%));will-change:clip-path}
 .compare-viewport .overlay img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
 .compare-viewport.drag-over{border-color:var(--secondary);box-shadow:0 0 0 2px rgba(142,67,240,.2) inset}
 .divider{position:absolute;top:0;bottom:0;width:3px;left:calc(var(--split,50%));transform:translateX(-1.5px);background:linear-gradient(var(--primary), var(--secondary));border-radius:2px;cursor:col-resize;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7);will-change:left}
@@ -71,9 +72,10 @@ body{
 .processing .spinner{width:28px;height:28px;border-radius:50%;border:3px solid #ddd;border-top-color:var(--primary);animation:spin 1s linear infinite;margin-right:10px}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-.placeholder{margin-top:12px}
-.placeholder .frame{display:flex;align-items:center;justify-content:center;height:140px;border:2px dashed var(--border);border-radius:12px;color:var(--muted);background:linear-gradient(180deg,#fafafe,#ffffff)}
-.placeholder .frame:hover{border-color:var(--secondary);color:var(--secondary)}
+/* Full-width upload frame (visible when no image) */
+.upload-frame{display:block;width:100%;height:160px;margin-top:12px;border:2px dashed var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--muted);background:linear-gradient(180deg,#fafafe,#ffffff);cursor:pointer}
+.upload-frame:hover{border-color:var(--secondary);color:var(--secondary)}
+.upload-frame.drag-over{border-color:var(--secondary);box-shadow:0 0 0 2px rgba(142,67,240,.2) inset}
 
 .meta-row{display:flex;justify-content:space-between;gap:12px;margin-top:8px}
 

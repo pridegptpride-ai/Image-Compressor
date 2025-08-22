@@ -25,7 +25,7 @@
 
   const dragDivider = document.getElementById('drag-divider');
   const compareViewport = document.getElementById('compare-viewport');
-  const placeholderBtn = document.getElementById('placeholder');
+  const uploadFrame = document.getElementById('upload-frame');
   const processingEl = document.getElementById('processing');
   const processingText = document.getElementById('processing-text');
 
@@ -62,9 +62,9 @@
     deleteAllBtn.style.display = has ? '' : 'none';
   }
 
-  function togglePlaceholder(show) {
-    placeholderBtn.style.display = show ? '' : 'none';
-    compareViewport.style.display = show ? 'none' : '';
+  function toggleFrame(showFrame) {
+    uploadFrame.style.display = showFrame ? '' : 'none';
+    compareViewport.style.display = showFrame ? 'none' : '';
   }
 
   function clearPreview() {
@@ -74,7 +74,7 @@
     compressedMeta.textContent = '—';
     statsEl.textContent = '—';
     currentCompressedBlob = null;
-    togglePlaceholder(true);
+    toggleFrame(true);
   }
 
   function selectImage(id) {
@@ -84,7 +84,7 @@
 
     baseImg.src = item.url;
     originalMeta.textContent = `${item.name} • ${formatBytes(item.originalBytes)}`;
-    togglePlaceholder(false);
+    toggleFrame(false);
 
     compressSelected(parseInt(qualityRange.value, 10));
 
@@ -326,8 +326,6 @@
     e.target.value = '';
   });
 
-  placeholderBtn.addEventListener('click', () => fileInput.click());
-  // Drag & drop on placeholder/frame and compare viewport
   const enableDrop = (el) => {
     el.addEventListener('dragover', (e) => { e.preventDefault(); el.classList.add('drag-over'); });
     el.addEventListener('dragleave', () => { el.classList.remove('drag-over'); });
@@ -338,7 +336,8 @@
       }
     });
   };
-  enableDrop(placeholderBtn);
+  uploadFrame.addEventListener('click', () => fileInput.click());
+  enableDrop(uploadFrame);
   enableDrop(compareViewport);
   compareViewport.addEventListener('click', () => { if (!images.length) fileInput.click(); });
 
@@ -383,6 +382,6 @@
   });
 
   // Initial state
-  togglePlaceholder(true);
+  toggleFrame(true);
   setEmptyState();
 })();
