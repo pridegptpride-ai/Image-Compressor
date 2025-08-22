@@ -2,6 +2,7 @@
   const fileInput = document.getElementById('file-input');
   const deleteAllBtn = document.getElementById('delete-all');
   const imageListEl = document.getElementById('image-list');
+  const emptyState = document.getElementById('empty-state');
   const template = document.getElementById('image-card-template');
 
   const baseImg = document.getElementById('base-img');
@@ -24,7 +25,9 @@
 
   const dragDivider = document.getElementById('drag-divider');
   const compareViewport = document.getElementById('compare-viewport');
-  const placeholder = document.getElementById('placeholder');
+  const placeholderBtn = document.getElementById('placeholder');
+  const processingEl = document.getElementById('processing');
+  const processingText = document.getElementById('processing-text');
 
   /** State */
   /** @type {{id:string, file:File, url:string, originalBytes:number, name:string, type:string}[]} */
@@ -52,14 +55,15 @@
     return `${reduction.toFixed(1)}% smaller`;
   }
 
+  function setEmptyState() {
+    const has = images.length > 0;
+    emptyState.style.display = has ? 'none' : '';
+    deleteAllBtn.disabled = !has;
+  }
+
   function togglePlaceholder(show) {
-    if (show) {
-      placeholder.style.display = '';
-      compareViewport.style.display = 'none';
-    } else {
-      placeholder.style.display = 'none';
-      compareViewport.style.display = '';
-    }
+    placeholderBtn.style.display = show ? '' : 'none';
+    compareViewport.style.display = show ? 'none' : '';
   }
 
   function clearPreview() {
@@ -77,17 +81,16 @@
     const item = images.find(i => i.id === id);
     if (!item) return;
 
-    baseImg.src = item.url;
+    baseImg.src = item.url; // left side = original
     originalMeta.textContent = `${item.name} • ${formatBytes(item.originalBytes)}`;
     togglePlaceholder(false);
 
-    // Reset overlay to reflect current quality
+    // Recompute compressed overlay
     compressSelected(parseInt(qualityRange.value, 10));
 
     // Highlight selected card
     imageListEl.querySelectorAll('.image-card').forEach(card => {
       card.classList.toggle('selected', card.dataset.id === id);
-      card.style.outline = card.dataset.id === id ? `2px solid var(--primary)` : '';
     });
   }
 
@@ -97,6 +100,7 @@
     canvas.width = imgBitmap.width;
     canvas.height = imgBitmap.height;
     const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width,canvas.height);
     ctx.drawImage(imgBitmap, 0, 0);
 
     const mimeType = blob.type.includes('png') ? 'image/png' : 'image/jpeg';
@@ -110,10 +114,13 @@
     const selected = images.find(i => i.id === selectedId);
     if (!selected) { clearPreview(); return; }
 
+    showProcessing('Compressing image...');
     const compressed = await compressBlobToQuality(selected.file, qualityPercent);
+    hideProcessing();
+
     currentCompressedBlob = compressed;
     const compressedUrl = URL.createObjectURL(compressed);
-    overlayImg.src = compressedUrl;
+    overlayImg.src = compressedUrl; // right side = compressed
 
     compressedMeta.textContent = `${selected.name.replace(/(\.[^.]+)$/,'-compressed$1')} • ${formatBytes(compressed.size)}`;
     statsEl.textContent = `${computeReduction(selected.originalBytes, compressed.size)} • Original: ${formatBytes(selected.originalBytes)} → Compressed: ${formatBytes(compressed.size)}`;
@@ -124,6 +131,7 @@
     if (!selected) return;
     const targetBytes = maxKB * 1024;
 
+    showProcessing('Optimizing to target size...');
     let low = 5, high = 100, best = null;
     for (let attempt = 0; attempt < 10; attempt++) {
       const mid = Math.round((low + high) / 2);
@@ -135,6 +143,8 @@
         low = mid + 1;
       }
     }
+    hideProcessing();
+
     const candidate = best ? best.blob : await compressBlobToQuality(selected.file, parseInt(qualityRange.value,10));
     currentCompressedBlob = candidate;
     const url = URL.createObjectURL(candidate);
@@ -187,7 +197,7 @@
       imageListEl.prepend(node);
     }
 
-    // Auto select the latest added image
+    setEmptyState();
     selectImage(images[images.length - 1].id);
   }
 
@@ -205,12 +215,14 @@
     if (!images.length) {
       selectedId = null;
       clearPreview();
+      setEmptyState();
       return;
     }
 
     if (removedSelected) {
       selectImage(images[0].id);
     }
+    setEmptyState();
   }
 
   function removeAllImages() {
@@ -219,6 +231,7 @@
     imageListEl.innerHTML = '';
     selectedId = null;
     clearPreview();
+    setEmptyState();
   }
 
   async function copyImage(id) {
@@ -232,7 +245,6 @@
       ]);
       toast('Image copied to clipboard');
     } catch (err) {
-      console.warn('Clipboard write failed, falling back to canvas copy', err);
       const fallbackBlob = await compressBlobToQuality(blobToCopy, 100);
       try {
         await navigator.clipboard.write([
@@ -278,7 +290,11 @@
     setTimeout(() => div.remove(), 2000);
   }
 
-  // Drag divider functionality with pointer events
+  // Processing overlay controls
+  function showProcessing(text){ processingText.textContent = text || 'Processing...'; processingEl.style.display = 'flex'; }
+  function hideProcessing(){ processingEl.style.display = 'none'; }
+
+  // Divider with pointer events; adjust CSS var only (prevents blinking)
   let isDragging = false;
   function setSplitFromClientX(clientX) {
     const rect = compareViewport.getBoundingClientRect();
@@ -296,8 +312,23 @@
   window.addEventListener('pointerup', () => { isDragging = false; });
   window.addEventListener('pointermove', onPointerMove);
 
-  // Events
-  fileInput.addEventListener('change', (e) => addFiles(e.target.files));
+  // Upload triggers
+  fileInput.addEventListener('change', (e) => {
+    const files = e.target.files;
+    if (files && files.length) addFiles(files);
+    // allow repeated uploads of same files
+    e.target.value = '';
+  });
+
+  placeholderBtn.addEventListener('click', () => fileInput.click());
+  // Drag & drop on placeholder/frame
+  placeholderBtn.addEventListener('dragover', (e) => { e.preventDefault(); });
+  placeholderBtn.addEventListener('drop', (e) => {
+    e.preventDefault();
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+      addFiles(e.dataTransfer.files);
+    }
+  });
 
   deleteAllBtn.addEventListener('click', () => {
     pendingDeleteAll = true;
@@ -330,7 +361,7 @@
     compressToMaxSize(maxKB);
   });
 
-  // Drag-and-drop support
+  // Global drag-and-drop support
   document.addEventListener('dragover', (e) => { e.preventDefault(); });
   document.addEventListener('drop', (e) => {
     e.preventDefault();
@@ -341,4 +372,5 @@
 
   // Initial state
   togglePlaceholder(true);
+  setEmptyState();
 })();

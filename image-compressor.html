@@ -10,12 +10,10 @@
   <link rel="stylesheet" href="./image-compressor.css" />
 </head>
 <body>
-  <header class="site-header">
-    <div class="container">
-      <h1>Free Online Image Compressor – Bulk, HD & Unlimited</h1>
-      <p class="subtitle">Compress your images without losing quality. Enjoy HD export, bulk upload, and unlimited file sizes – all free, with live preview and quality control.</p>
-    </div>
-  </header>
+  <div class="intro container">
+    <h1>Free Online Image Compressor – Bulk, HD & Unlimited</h1>
+    <p class="subtitle">Compress your images without losing quality. Enjoy HD export, bulk upload, and unlimited file sizes – all free, with live preview and quality control.</p>
+  </div>
 
   <main class="container main-grid">
     <!-- LEFT: Upload & List -->
@@ -23,9 +21,10 @@
       <div class="controls">
         <label class="btn primary" for="file-input">Add Images</label>
         <input id="file-input" type="file" accept="image/*" multiple hidden />
-        <button id="delete-all" class="btn ghost">Delete All</button>
+        <button id="delete-all" class="btn ghost" disabled>Delete All</button>
       </div>
 
+      <div id="empty-state" class="empty-state">Image list is empty. Kindly add images.</div>
       <div id="image-list" class="image-list" aria-live="polite"></div>
     </section>
 
@@ -46,14 +45,20 @@
             <div class="overlay" id="overlay">
               <img id="overlay-img" alt="Compressed preview" />
             </div>
-            <div class="divider" id="drag-divider" title="Drag to compare"></div>
-          </div>
-
-          <div id="placeholder" class="placeholder">
-            <div class="frame">
-              <span>Selected image will appear here for comparison</span>
+            <div class="divider" id="drag-divider" title="Drag to compare">
+              <div class="handle"></div>
+            </div>
+            <div class="processing" id="processing">
+              <div class="spinner"></div>
+              <span id="processing-text">Processing...</span>
             </div>
           </div>
+
+          <button id="placeholder" class="placeholder" type="button">
+            <div class="frame" id="upload-frame">
+              <span>Click or drag & drop here to add images</span>
+            </div>
+          </button>
 
           <div class="meta-row">
             <div class="meta" id="original-meta">—</div>
