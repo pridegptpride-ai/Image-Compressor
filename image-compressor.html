@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Image Compressor – Bulk, HD & Unlimited</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./image-compressor.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1>Free Online Image Compressor – Bulk, HD & Unlimited</h1>
+      <p class="subtitle">Compress your images without losing quality. Enjoy HD export, bulk upload, and unlimited file sizes – all free, with live preview and quality control.</p>
+    </div>
+  </header>
+
+  <main class="container main-grid">
+    <!-- LEFT: Upload & List -->
+    <section class="left-panel">
+      <div class="controls">
+        <label class="btn primary" for="file-input">Add Images</label>
+        <input id="file-input" type="file" accept="image/*" multiple hidden />
+        <button id="delete-all" class="btn ghost">Delete All</button>
+      </div>
+
+      <div id="image-list" class="image-list" aria-live="polite"></div>
+    </section>
+
+    <!-- RIGHT: Preview & Compression Controls -->
+    <section class="right-panel">
+      <div class="top-controls">
+        <div class="field">
+          <label for="max-size">Max File Size (KB)</label>
+          <input id="max-size" type="number" min="1" placeholder="e.g., 300" />
+        </div>
+        <button id="apply-max" class="btn secondary">Apply</button>
+      </div>
+
+      <div class="preview-area">
+        <div class="preview-compare">
+          <div class="preview original">
+            <h3>Original</h3>
+            <img id="original-img" alt="Original preview" />
+            <div class="meta" id="original-meta">—</div>
+          </div>
+          <div class="divider" id="drag-divider" title="Drag to compare"></div>
+          <div class="preview compressed">
+            <h3>Compressed</h3>
+            <img id="compressed-img" alt="Compressed preview" />
+            <div class="meta" id="compressed-meta">—</div>
+          </div>
+        </div>
+
+        <div class="quality-controls">
+          <label for="quality-range">Quality</label>
+          <input id="quality-range" type="range" min="1" max="100" value="80" />
+          <span id="quality-value">80%</span>
+        </div>
+
+        <div class="stats" id="stats">—</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <dialog id="confirm-modal" class="modal">
+    <div class="modal-content">
+      <h3>Delete all images?</h3>
+      <p>This action will remove all uploaded images.</p>
+      <div class="modal-actions">
+        <button class="btn ghost" id="cancel-delete">Cancel</button>
+        <button class="btn danger" id="confirm-delete">Delete</button>
+      </div>
+    </div>
+  </dialog>
+
+  <template id="image-card-template">
+    <div class="image-card" data-id="">
+      <button class="remove" title="Remove" aria-label="Remove">×</button>
+      <img class="thumb" alt="thumbnail" />
+      <div class="image-actions">
+        <button class="btn small" data-action="copy">Copy</button>
+        <button class="btn small" data-action="download">Download</button>
+      </div>
+    </div>
+  </template>
+
+  <script src="./image-compressor.js" defer></script>
+</body>
+</html>

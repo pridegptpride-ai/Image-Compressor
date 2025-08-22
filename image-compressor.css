@@ -1,0 +1,74 @@
+:root{
+  --primary:#6300E2;
+  --secondary:#8E43F0;
+  --bg:#ffffff;
+  --text:#1e1e2d;
+  --muted:#6b6b80;
+  --border:#e8e8f0;
+  --shadow:0 10px 25px rgba(17, 12, 46, 0.08);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,'Helvetica Neue',Arial,'Noto Sans',sans-serif;
+  color:var(--text);
+  background:var(--bg);
+}
+.container{max-width:1200px;margin:0 auto;padding:24px}
+.site-header{background:linear-gradient(180deg, rgba(99,0,226,0.06), rgba(99,0,226,0.0));border-bottom:1px solid var(--border)}
+.site-header h1{margin:0 0 8px;font-size:28px;line-height:1.2}
+.subtitle{margin:0 0 12px;color:var(--muted)}
+
+.main-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:24px;align-items:start}
+@media (max-width: 900px){.main-grid{grid-template-columns:1fr}}
+
+.left-panel,.right-panel{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:16px}
+
+.controls{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.btn{appearance:none;border:none;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer;transition:transform .1s ease, box-shadow .2s ease, background .2s ease;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn.primary{background:var(--primary);color:#fff}
+.btn.primary:hover{background:#5a00cb}
+.btn.secondary{background:var(--secondary);color:#fff}
+.btn.secondary:hover{background:#7b39d5}
+.btn.ghost{background:#f7f7fb;color:var(--text)}
+.btn.ghost:hover{background:#efeff7}
+.btn.danger{background:#ff4d4f;color:#fff}
+.btn.small{padding:8px 10px;font-size:12px;border-radius:10px}
+
+.image-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;max-height:60vh;overflow:auto;padding-right:4px}
+.image-card{position:relative;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fafafe}
+.image-card .remove{position:absolute;top:6px;right:6px;border:none;background:rgba(0,0,0,.5);color:#fff;border-radius:50%;width:24px;height:24px;cursor:pointer}
+.image-card .thumb{display:block;width:100%;height:110px;object-fit:cover;background:#f1f1f7}
+.image-card .image-actions{display:flex;gap:8px;justify-content:space-between;padding:8px}
+.image-card:hover{box-shadow:0 6px 16px rgba(0,0,0,0.08)}
+
+.top-controls{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field input{border:1px solid var(--border);border-radius:12px;padding:10px 12px;min-width:220px}
+
+.preview-area{border:1px dashed var(--border);border-radius:12px;padding:12px;background:#fdfdff}
+.preview-compare{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+.preview h3{margin:4px 0 8px;font-size:14px;color:var(--muted)}
+.preview img{width:100%;height:320px;object-fit:contain;background:#fff;border:1px solid var(--border);border-radius:12px}
+.divider{position:absolute;left:50%;top:0;bottom:0;width:3px;background:linear-gradient(var(--primary), var(--secondary));border-radius:2px;cursor:col-resize;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7)}
+@media (max-width: 700px){.preview-compare{grid-template-columns:1fr}.divider{display:none}.preview img{height:260px}}
+
+.quality-controls{display:flex;align-items:center;gap:12px;margin-top:12px}
+.quality-controls input[type="range"]{flex:1}
+
+.stats,.meta{margin-top:8px;color:var(--muted);font-size:14px}
+
+.modal::backdrop{background:rgba(0,0,0,0.45)}
+.modal{border:none;border-radius:16px;padding:0;box-shadow:var(--shadow)}
+.modal-content{padding:20px 20px 16px;min-width:280px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+
+/* Mobile full width controls */
+@media (max-width:700px){
+  .controls .btn, .top-controls .btn, .field input, .quality-controls input, .quality-controls label{width:100%}
+  .controls{flex-direction:column}
+  .top-controls{flex-direction:column;align-items:stretch}
+}
