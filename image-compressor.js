@@ -4,8 +4,8 @@
   const imageListEl = document.getElementById('image-list');
   const template = document.getElementById('image-card-template');
 
-  const originalImg = document.getElementById('original-img');
-  const compressedImg = document.getElementById('compressed-img');
+  const baseImg = document.getElementById('base-img');
+  const overlayImg = document.getElementById('overlay-img');
   const originalMeta = document.getElementById('original-meta');
   const compressedMeta = document.getElementById('compressed-meta');
   const statsEl = document.getElementById('stats');
@@ -19,15 +19,20 @@
   const confirmModal = document.getElementById('confirm-modal');
   const cancelDelete = document.getElementById('cancel-delete');
   const confirmDelete = document.getElementById('confirm-delete');
+  const modalTitle = confirmModal.querySelector('h3');
+  const modalDesc = confirmModal.querySelector('p');
 
   const dragDivider = document.getElementById('drag-divider');
-  const previewCompare = document.querySelector('.preview-compare');
+  const compareViewport = document.getElementById('compare-viewport');
+  const placeholder = document.getElementById('placeholder');
 
   /** State */
   /** @type {{id:string, file:File, url:string, originalBytes:number, name:string, type:string}[]} */
   const images = [];
   let selectedId = null;
   let currentCompressedBlob = null;
+  let pendingDeleteAll = false;
+  let pendingDeleteId = null;
 
   function generateId() {
     return Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -47,13 +52,24 @@
     return `${reduction.toFixed(1)}% smaller`;
   }
 
+  function togglePlaceholder(show) {
+    if (show) {
+      placeholder.style.display = '';
+      compareViewport.style.display = 'none';
+    } else {
+      placeholder.style.display = 'none';
+      compareViewport.style.display = '';
+    }
+  }
+
   function clearPreview() {
-    originalImg.src = '';
-    compressedImg.src = '';
+    baseImg.src = '';
+    overlayImg.src = '';
     originalMeta.textContent = '—';
     compressedMeta.textContent = '—';
     statsEl.textContent = '—';
     currentCompressedBlob = null;
+    togglePlaceholder(true);
   }
 
   function selectImage(id) {
@@ -61,10 +77,11 @@
     const item = images.find(i => i.id === id);
     if (!item) return;
 
-    originalImg.src = item.url;
+    baseImg.src = item.url;
     originalMeta.textContent = `${item.name} • ${formatBytes(item.originalBytes)}`;
+    togglePlaceholder(false);
 
-    // Reset compressed view until user adjusts quality or applies max size
+    // Reset overlay to reflect current quality
     compressSelected(parseInt(qualityRange.value, 10));
 
     // Highlight selected card
@@ -96,7 +113,7 @@
     const compressed = await compressBlobToQuality(selected.file, qualityPercent);
     currentCompressedBlob = compressed;
     const compressedUrl = URL.createObjectURL(compressed);
-    compressedImg.src = compressedUrl;
+    overlayImg.src = compressedUrl;
 
     compressedMeta.textContent = `${selected.name.replace(/(\.[^.]+)$/,'-compressed$1')} • ${formatBytes(compressed.size)}`;
     statsEl.textContent = `${computeReduction(selected.originalBytes, compressed.size)} • Original: ${formatBytes(selected.originalBytes)} → Compressed: ${formatBytes(compressed.size)}`;
@@ -107,7 +124,6 @@
     if (!selected) return;
     const targetBytes = maxKB * 1024;
 
-    // Binary search quality for JPEG only; for PNG just try to re-encode
     let low = 5, high = 100, best = null;
     for (let attempt = 0; attempt < 10; attempt++) {
       const mid = Math.round((low + high) / 2);
@@ -122,7 +138,7 @@
     const candidate = best ? best.blob : await compressBlobToQuality(selected.file, parseInt(qualityRange.value,10));
     currentCompressedBlob = candidate;
     const url = URL.createObjectURL(candidate);
-    compressedImg.src = url;
+    overlayImg.src = url;
     compressedMeta.textContent = `${selected.name.replace(/(\.[^.]+)$/,'-compressed$1')} • ${formatBytes(candidate.size)}`;
     statsEl.textContent = `${computeReduction(selected.originalBytes, candidate.size)} • Original: ${formatBytes(selected.originalBytes)} → Compressed: ${formatBytes(candidate.size)}`;
 
@@ -149,7 +165,11 @@
 
       node.querySelector('.remove').addEventListener('click', (e) => {
         e.stopPropagation();
-        removeImage(id);
+        pendingDeleteAll = false;
+        pendingDeleteId = id;
+        modalTitle.textContent = 'Delete this image?';
+        modalDesc.textContent = 'This will remove the selected image from the list.';
+        if (typeof confirmModal.showModal === 'function') confirmModal.showModal();
       });
 
       node.addEventListener('click', () => selectImage(id));
@@ -175,12 +195,10 @@
     const idx = images.findIndex(i => i.id === id);
     if (idx === -1) return;
 
-    // Revoke URL and remove from DOM
     URL.revokeObjectURL(images[idx].url);
     const card = imageListEl.querySelector(`.image-card[data-id="${id}"]`);
     if (card) card.remove();
 
-    // If removing selected, clear or select another
     const removedSelected = images[idx].id === selectedId;
     images.splice(idx, 1);
 
@@ -215,7 +233,6 @@
       toast('Image copied to clipboard');
     } catch (err) {
       console.warn('Clipboard write failed, falling back to canvas copy', err);
-      // fallback: draw to canvas and copy as png
       const fallbackBlob = await compressBlobToQuality(blobToCopy, 100);
       try {
         await navigator.clipboard.write([
@@ -261,36 +278,45 @@
     setTimeout(() => div.remove(), 2000);
   }
 
-  // Drag divider functionality (visual only)
+  // Drag divider functionality with pointer events
   let isDragging = false;
-  dragDivider.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    document.body.style.userSelect = 'none';
+  function setSplitFromClientX(clientX) {
+    const rect = compareViewport.getBoundingClientRect();
+    const x = Math.min(Math.max(clientX - rect.left, 0), rect.width);
+    const pct = (x / rect.width) * 100;
+    compareViewport.style.setProperty('--split', pct + '%');
+  }
+  function onPointerMove(e){ if (!isDragging) return; setSplitFromClientX(e.clientX); }
+  dragDivider.addEventListener('pointerdown', (e) => {
+    isDragging = true; dragDivider.setPointerCapture(e.pointerId); setSplitFromClientX(e.clientX);
   });
-  window.addEventListener('mouseup', () => {
-    isDragging = false;
-    document.body.style.userSelect = '';
+  compareViewport.addEventListener('pointerdown', (e) => {
+    isDragging = true; compareViewport.setPointerCapture(e.pointerId); setSplitFromClientX(e.clientX);
   });
-  window.addEventListener('mousemove', (e) => {
-    if (!isDragging) return;
-    const rect = previewCompare.getBoundingClientRect();
-    const x = Math.min(Math.max(e.clientX - rect.left, 0), rect.width);
-    dragDivider.style.left = `${(x / rect.width) * 100}%`;
-  });
+  window.addEventListener('pointerup', () => { isDragging = false; });
+  window.addEventListener('pointermove', onPointerMove);
 
   // Events
   fileInput.addEventListener('change', (e) => addFiles(e.target.files));
 
   deleteAllBtn.addEventListener('click', () => {
+    pendingDeleteAll = true;
+    pendingDeleteId = null;
+    modalTitle.textContent = 'Delete all images?';
+    modalDesc.textContent = 'This action will remove all uploaded images.';
     if (typeof confirmModal.showModal === 'function') {
       confirmModal.showModal();
     } else {
-      // fallback
       if (confirm('Delete all images?')) removeAllImages();
     }
   });
   cancelDelete.addEventListener('click', () => confirmModal.close());
-  confirmDelete.addEventListener('click', () => { removeAllImages(); confirmModal.close(); });
+  confirmDelete.addEventListener('click', () => {
+    if (pendingDeleteAll) removeAllImages();
+    if (pendingDeleteId) removeImage(pendingDeleteId);
+    pendingDeleteAll = false; pendingDeleteId = null;
+    confirmModal.close();
+  });
 
   qualityRange.addEventListener('input', () => {
     const q = parseInt(qualityRange.value, 10);
@@ -312,4 +338,7 @@
       addFiles(e.dataTransfer.files);
     }
   });
+
+  // Initial state
+  togglePlaceholder(true);
 })();

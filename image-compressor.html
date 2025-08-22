@@ -41,15 +41,22 @@
 
       <div class="preview-area">
         <div class="preview-compare">
-          <div class="preview original">
-            <h3>Original</h3>
-            <img id="original-img" alt="Original preview" />
-            <div class="meta" id="original-meta">—</div>
+          <div class="compare-viewport" id="compare-viewport" style="--split:50%">
+            <img id="base-img" alt="Original preview" />
+            <div class="overlay" id="overlay">
+              <img id="overlay-img" alt="Compressed preview" />
+            </div>
+            <div class="divider" id="drag-divider" title="Drag to compare"></div>
           </div>
-          <div class="divider" id="drag-divider" title="Drag to compare"></div>
-          <div class="preview compressed">
-            <h3>Compressed</h3>
-            <img id="compressed-img" alt="Compressed preview" />
+
+          <div id="placeholder" class="placeholder">
+            <div class="frame">
+              <span>Selected image will appear here for comparison</span>
+            </div>
+          </div>
+
+          <div class="meta-row">
+            <div class="meta" id="original-meta">—</div>
             <div class="meta" id="compressed-meta">—</div>
           </div>
         </div>
