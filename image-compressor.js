@@ -59,6 +59,7 @@
     const has = images.length > 0;
     emptyState.style.display = has ? 'none' : '';
     deleteAllBtn.disabled = !has;
+    deleteAllBtn.style.display = has ? '' : 'none';
   }
 
   function togglePlaceholder(show) {
@@ -81,14 +82,12 @@
     const item = images.find(i => i.id === id);
     if (!item) return;
 
-    baseImg.src = item.url; // left side = original
+    baseImg.src = item.url;
     originalMeta.textContent = `${item.name} • ${formatBytes(item.originalBytes)}`;
     togglePlaceholder(false);
 
-    // Recompute compressed overlay
     compressSelected(parseInt(qualityRange.value, 10));
 
-    // Highlight selected card
     imageListEl.querySelectorAll('.image-card').forEach(card => {
       card.classList.toggle('selected', card.dataset.id === id);
     });
@@ -120,7 +119,7 @@
 
     currentCompressedBlob = compressed;
     const compressedUrl = URL.createObjectURL(compressed);
-    overlayImg.src = compressedUrl; // right side = compressed
+    overlayImg.src = compressedUrl;
 
     compressedMeta.textContent = `${selected.name.replace(/(\.[^.]+)$/,'-compressed$1')} • ${formatBytes(compressed.size)}`;
     statsEl.textContent = `${computeReduction(selected.originalBytes, compressed.size)} • Original: ${formatBytes(selected.originalBytes)} → Compressed: ${formatBytes(compressed.size)}`;
@@ -294,20 +293,28 @@
   function showProcessing(text){ processingText.textContent = text || 'Processing...'; processingEl.style.display = 'flex'; }
   function hideProcessing(){ processingEl.style.display = 'none'; }
 
-  // Divider with pointer events; adjust CSS var only (prevents blinking)
-  let isDragging = false;
+  // Divider with requestAnimationFrame throttling
+  let isDragging = false, rafId = null, pendingX = null;
   function setSplitFromClientX(clientX) {
     const rect = compareViewport.getBoundingClientRect();
     const x = Math.min(Math.max(clientX - rect.left, 0), rect.width);
     const pct = (x / rect.width) * 100;
     compareViewport.style.setProperty('--split', pct + '%');
   }
-  function onPointerMove(e){ if (!isDragging) return; setSplitFromClientX(e.clientX); }
+  function scheduleSplitUpdate(clientX){
+    pendingX = clientX;
+    if (rafId) return;
+    rafId = requestAnimationFrame(() => {
+      setSplitFromClientX(pendingX);
+      rafId = null;
+    });
+  }
+  function onPointerMove(e){ if (!isDragging) return; scheduleSplitUpdate(e.clientX); }
   dragDivider.addEventListener('pointerdown', (e) => {
-    isDragging = true; dragDivider.setPointerCapture(e.pointerId); setSplitFromClientX(e.clientX);
+    isDragging = true; dragDivider.setPointerCapture(e.pointerId); scheduleSplitUpdate(e.clientX);
   });
   compareViewport.addEventListener('pointerdown', (e) => {
-    isDragging = true; compareViewport.setPointerCapture(e.pointerId); setSplitFromClientX(e.clientX);
+    isDragging = true; compareViewport.setPointerCapture(e.pointerId); scheduleSplitUpdate(e.clientX);
   });
   window.addEventListener('pointerup', () => { isDragging = false; });
   window.addEventListener('pointermove', onPointerMove);
@@ -316,19 +323,24 @@
   fileInput.addEventListener('change', (e) => {
     const files = e.target.files;
     if (files && files.length) addFiles(files);
-    // allow repeated uploads of same files
     e.target.value = '';
   });
 
   placeholderBtn.addEventListener('click', () => fileInput.click());
-  // Drag & drop on placeholder/frame
-  placeholderBtn.addEventListener('dragover', (e) => { e.preventDefault(); });
-  placeholderBtn.addEventListener('drop', (e) => {
-    e.preventDefault();
-    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
-      addFiles(e.dataTransfer.files);
-    }
-  });
+  // Drag & drop on placeholder/frame and compare viewport
+  const enableDrop = (el) => {
+    el.addEventListener('dragover', (e) => { e.preventDefault(); el.classList.add('drag-over'); });
+    el.addEventListener('dragleave', () => { el.classList.remove('drag-over'); });
+    el.addEventListener('drop', (e) => {
+      e.preventDefault(); el.classList.remove('drag-over');
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+        addFiles(e.dataTransfer.files);
+      }
+    });
+  };
+  enableDrop(placeholderBtn);
+  enableDrop(compareViewport);
+  compareViewport.addEventListener('click', () => { if (!images.length) fileInput.click(); });
 
   deleteAllBtn.addEventListener('click', () => {
     pendingDeleteAll = true;
