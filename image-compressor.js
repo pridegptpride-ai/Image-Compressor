@@ -83,6 +83,9 @@
     return blob || file;
   }
 
+  function showProcessing(text){ processingText.textContent = text || 'Processing...'; processingEl.style.display = 'flex'; }
+  function hideProcessing(){ processingEl.style.display = 'none'; }
+
   async function ensureCompressed(item, quality) {
     if (item.cachedCompressed && item.cachedCompressed.quality === quality) return item.cachedCompressed;
     showProcessing('Compressing image...');
@@ -119,7 +122,7 @@
       node.addEventListener('click', () => selectImage(item.id));
       node.querySelector('.remove').addEventListener('click', (e) => { e.stopPropagation(); pendingDeleteAll = false; pendingDeleteId = item.id; modalTitle.textContent = 'Delete this image?'; modalDesc.textContent = 'This will remove the selected image from the list.'; if (typeof confirmModal.showModal === 'function') confirmModal.showModal(); });
       node.querySelector('[data-action="copy"]').addEventListener('click', async (e) => { e.stopPropagation(); const it = images.find(i => i.id === item.id); const quality = parseInt(qualityRange.value, 10); const c = await ensureCompressed(it, quality); try { await navigator.clipboard.write([ new ClipboardItem({ [c.blob.type]: c.blob }) ]); toast('Compressed image copied'); } catch { toast('Copy not supported in this browser'); } });
-      node.querySelector('[data-action="download"]').addEventListener('click', async (e) => { e.stopPropagation(); const it = images.find(i => i.id === item.id); const quality = parseInt(qualityRange.value, 10); const c = await ensureCompressed(it, quality); const a = document.createElement('a'); a.href = URL.createObjectURL(c.blob); a.download = it.name.replace(/(\.[^.]+)$/, '-compressed$1'); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); });
+      node.querySelector('[data-action="download"]').addEventListener('click', async (e) => { e.stopPropagation(); const it = images.find(i => i.id === item.id); const quality = parseInt(qualityRange.value, 10); const c = await ensureCompressed(it, quality); showProcessing('Downloading...'); const a = document.createElement('a'); a.href = URL.createObjectURL(c.blob); a.download = it.name.replace(/(\.[^.]+)$/, '-compressed$1'); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => { URL.revokeObjectURL(a.href); hideProcessing(); }, 800); });
       imageListEl.prepend(node);
     }
   }
@@ -135,9 +138,11 @@
   function setEmptyAndRender() { setEmptyState(); renderList(); if (images.length) selectImage(images[images.length - 1].id); else clearPreview(); }
 
   function addFiles(fileList) {
+    if (!fileList || !fileList.length) return;
+    showProcessing('Uploading...');
     const files = Array.from(fileList).filter(f => f && f.type.startsWith('image/'));
-    if (!files.length) return;
     for (const file of files) { const id = generateId(); const url = URL.createObjectURL(file); images.push({ id, file, url, originalBytes: file.size, name: file.name, type: file.type }); }
+    hideProcessing();
     setEmptyAndRender();
   }
 
@@ -155,7 +160,9 @@
 
   async function downloadAll() {
     if (!images.length) return;
+    showProcessing('Downloading all...');
     for (const it of images) { const quality = parseInt(qualityRange.value, 10); const c = await ensureCompressed(it, quality); const a = document.createElement('a'); a.href = URL.createObjectURL(c.blob); a.download = it.name.replace(/(\.[^.]+)$/, '-compressed$1'); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
+    hideProcessing();
   }
 
   function syncQualityInputs(val) {
@@ -176,25 +183,9 @@
   window.addEventListener('pointermove', onPointerMove);
 
   // Filter menu events
-  filterButton.addEventListener('click', () => {
-    const isHidden = filterMenu.hasAttribute('hidden');
-    if (isHidden) { filterMenu.removeAttribute('hidden'); filterButton.setAttribute('aria-expanded','true'); }
-    else { filterMenu.setAttribute('hidden',''); filterButton.setAttribute('aria-expanded','false'); }
-  });
-  filterMenu.addEventListener('click', (e) => {
-    const target = e.target.closest('.menu-item');
-    if (!target) return;
-    const mode = target.getAttribute('data-sort');
-    sortList(mode);
-    filterMenu.setAttribute('hidden','');
-    filterButton.setAttribute('aria-expanded','false');
-  });
-  document.addEventListener('click', (e) => {
-    if (!filterMenu.contains(e.target) && e.target !== filterButton) {
-      filterMenu.setAttribute('hidden','');
-      filterButton.setAttribute('aria-expanded','false');
-    }
-  }, true);
+  filterButton.addEventListener('click', () => { const isHidden = filterMenu.hasAttribute('hidden'); if (isHidden) { filterMenu.removeAttribute('hidden'); filterButton.setAttribute('aria-expanded','true'); } else { filterMenu.setAttribute('hidden',''); filterButton.setAttribute('aria-expanded','false'); } });
+  filterMenu.addEventListener('click', (e) => { const target = e.target.closest('.menu-item'); if (!target) return; const mode = target.getAttribute('data-sort'); sortList(mode); filterMenu.setAttribute('hidden',''); filterButton.setAttribute('aria-expanded','false'); });
+  document.addEventListener('click', (e) => { if (!filterMenu.contains(e.target) && e.target !== filterButton) { filterMenu.setAttribute('hidden',''); filterButton.setAttribute('aria-expanded','false'); } }, true);
 
   // Events
   iconAdd.addEventListener('click', () => fileInput.click());
