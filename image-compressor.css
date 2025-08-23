@@ -82,7 +82,22 @@ body{
   }
 }
 
-.controls{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.controls{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;justify-content:center;align-items:center}
+
+/* Ensure controls are centered on all screen sizes - same as top-controls and icon-bar */
+@media (min-width: 1200px) {
+  .controls { 
+    justify-content: center;
+    gap: 16px 
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1199px) {
+  .controls { 
+    justify-content: center;
+    gap: 14px 
+  }
+}
 
 /* Responsive controls */
 @media (max-width: 768px) {
@@ -411,7 +426,22 @@ body{
 
 .meta-row{display:flex;justify-content:space-between;gap:12px;margin-top:8px}
 
-.quality-controls{display:flex;align-items:center;gap:12px;margin-top:12px}
+.quality-controls{display:flex;align-items:center;gap:12px;margin-top:12px;justify-content:center}
+
+/* Ensure quality controls are centered on all screen sizes - same as other control sections */
+@media (min-width: 1200px) {
+  .quality-controls { 
+    justify-content: center;
+    gap: 16px 
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1199px) {
+  .quality-controls { 
+    justify-content: center;
+    gap: 14px 
+  }
+}
 
 /* Responsive quality controls - keeping in same line */
 @media (max-width: 768px) {
@@ -517,13 +547,13 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
 
 /* Mobile full width controls - keeping everything in same line with better compression */
 @media (max-width:700px){
-  .controls{flex-direction:row;flex-wrap:wrap;gap:6px}
+  .controls{flex-direction:row;flex-wrap:wrap;gap:6px;justify-content:center}
   .top-controls{flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px;justify-content:center}
   .controls .btn, .top-controls .btn, .field input, .quality-controls input, .quality-controls label{width:auto;flex:1 1 auto}
-  .quality-controls{flex-wrap:wrap;flex-direction:row}
+  .quality-controls{flex-wrap:wrap;flex-direction:row;justify-content:center}
   .quality-controls > *{flex:1 1 auto}
   .quality-controls .icon-btn{flex:0 0 auto}
-  .icon-bar{flex-direction:row !important;flex-wrap:wrap;gap:6px}
+  .icon-bar{flex-direction:row !important;flex-wrap:wrap;gap:6px;justify-content:center}
   .icon-bar .icon-btn{width:40px;flex:0 0 auto}
   
   .field { 
@@ -538,7 +568,8 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
     justify-content: center;
     gap: 6px;
     flex-direction: row !important;
-    flex-wrap: wrap 
+    flex-wrap: wrap;
+    align-items: center 
   }
   
   .icon-bar .icon-btn { 
@@ -573,7 +604,22 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
   }
 }
 
-.icon-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex-direction:row !important}
+.icon-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex-direction:row !important;justify-content:center}
+
+/* Ensure icon bar is centered on all screen sizes - same as top-controls */
+@media (min-width: 1200px) {
+  .icon-bar { 
+    justify-content: center;
+    gap: 16px 
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1199px) {
+  .icon-bar { 
+    justify-content: center;
+    gap: 14px 
+  }
+}
 
 /* Ensure icon bar always stays in same line with better compression */
 @media (max-width: 768px) {
