@@ -127,12 +127,8 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
 .quality-value:focus{outline:none;border-color:var(--secondary);box-shadow:0 0 0 3px rgba(142,67,240,.15)}
 #max-size:focus{outline:none;border-color:var(--secondary)!important;box-shadow:0 0 0 3px rgba(142,67,240,.15)}
 
-/* Force all buttons to dark red background */
-.btn, .btn.primary, .btn.secondary, .btn.ghost, .btn.danger, .btn.small,
-.icon-btn, .icon-btn.outline{
-  background:#8B0000 !important;
-  color:#fff !important;
-  border-color:#8B0000 !important;
-}
-.icon-btn svg{color:#fff;stroke:currentColor}
-.btn:hover, .icon-btn:hover{filter:brightness(0.95)}
+/* Delete/Remove buttons use full dark red */
+.btn.danger{background:#8B0000;color:#fff;border-color:#8B0000}
+.btn.danger:hover{background:#7a0000}
+.image-card .remove{background:#8B0000;color:#fff}
+.image-card .remove:hover{background:#7a0000}
