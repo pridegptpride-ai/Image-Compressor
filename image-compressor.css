@@ -338,14 +338,14 @@ body{
 }
 .image-card:hover{box-shadow:0 6px 16px rgba(0,0,0,0.08)}
 
-.top-controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px;flex-direction:row !important;justify-content:flex-start}
+.top-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;flex-direction:row !important;justify-content:flex-start}
 
 /* Ensure top controls are left-justified on all screen sizes */
 @media (min-width: 1200px) {
   .top-controls { 
     justify-content: flex-start;
     align-items: center;
-    gap: 16px 
+    gap: 8px 
   }
 }
 
@@ -353,7 +353,7 @@ body{
   .top-controls { 
     justify-content: flex-start;
     align-items: center;
-    gap: 14px 
+    gap: 8px 
   }
 }
 
@@ -362,7 +362,7 @@ body{
   .top-controls { 
     flex-direction: row !important;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 8px;
     align-items: center;
     justify-content: flex-start 
   }
@@ -377,7 +377,7 @@ body{
   .top-controls { 
     flex-direction: row !important;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: 8px;
     align-items: center;
     justify-content: flex-start 
   }
@@ -561,13 +561,13 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
 
 /* Mobile full width controls - keeping everything in same line with better compression */
 @media (max-width:700px){
-  .controls{flex-direction:row;flex-wrap:wrap;gap:6px;justify-content:flex-start}
-  .top-controls{flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px;justify-content:flex-start}
+  .controls{flex-direction:row;flex-wrap:wrap;gap:8px;justify-content:flex-start}
+  .top-controls{flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px;justify-content:flex-start}
   .controls .btn, .top-controls .btn, .field input, .quality-controls input, .quality-controls label{width:auto;flex:1 1 auto}
   .quality-controls{flex-wrap:wrap;flex-direction:row;justify-content:flex-start}
   .quality-controls > *{flex:1 1 auto}
   .quality-controls .icon-btn{flex:0 0 auto}
-  .icon-bar{flex-direction:row !important;flex-wrap:wrap;gap:6px;justify-content:flex-start}
+  .icon-bar{flex-direction:row !important;flex-wrap:wrap;gap:8px;justify-content:flex-start}
   .icon-bar .icon-btn{width:40px;flex:0 0 auto}
   
   .field { 
@@ -618,14 +618,14 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
   }
 }
 
-.icon-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex-direction:row !important;justify-content:flex-start}
+.icon-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex-direction:row !important;justify-content:flex-start}
 
 /* Ensure icon bar is left-justified on all screen sizes */
 @media (min-width: 1200px) {
   .icon-bar { 
     justify-content: flex-start;
     align-items: center;
-    gap: 16px 
+    gap: 8px 
   }
 }
 
@@ -633,7 +633,7 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
   .icon-bar { 
     justify-content: flex-start;
     align-items: center;
-    gap: 14px 
+    gap: 8px 
   }
 }
 
@@ -642,7 +642,7 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
   .icon-bar { 
     flex-direction: row !important;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 8px;
     justify-content: flex-start;
     align-items: center 
   }
@@ -652,7 +652,7 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
   .icon-bar { 
     flex-direction: row !important;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: 8px;
     justify-content: flex-start;
     align-items: center 
   }
