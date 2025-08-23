@@ -64,6 +64,15 @@
 
   function clearPreview() { baseImg.src = ''; overlayImg.src = ''; originalMeta.textContent = '—'; compressedMeta.textContent = '—'; statsEl.textContent = '—'; toggleFrame(true); }
 
+  function resetUIControls(){
+    selectedId = null;
+    maxSizeInput.value = '';
+    qualityRange.value = '100';
+    qualityValueInput.value = '100';
+    filterMenu.setAttribute('hidden','');
+    clearPreview();
+  }
+
   function getSelected() { return images.find(i => i.id === selectedId); }
 
   async function compressBitmapToMime(bitmap, qualityPercent, mime) {
@@ -167,9 +176,9 @@
   // Events
   iconAdd.addEventListener('click', () => fileInput.click()); fileInput.addEventListener('change', (e) => { const files = e.target.files; if (files && files.length) addFiles(files); e.target.value = ''; }); deleteAllBtn.addEventListener('click', () => { pendingDeleteAll = true; pendingDeleteId = null; modalTitle.textContent = 'Delete all images?'; modalDesc.textContent = 'This action will remove all uploaded images.'; if (typeof confirmModal.showModal === 'function') confirmModal.showModal(); else if (confirm('Delete all images?')) removeAllImages(); }); cancelDelete.addEventListener('click', () => confirmModal.close()); confirmDelete.addEventListener('click', () => { if (pendingDeleteAll) removeAllImages(); if (pendingDeleteId) removeImage(pendingDeleteId); pendingDeleteAll = false; pendingDeleteId = null; confirmModal.close(); }); downloadAllBtn.addEventListener('click', downloadAll); qualityRange.addEventListener('input', () => syncQualityInputs(qualityRange.value)); qualityValueInput.addEventListener('change', () => syncQualityInputs(qualityValueInput.value)); applyMaxBtn.addEventListener('click', applyMaxSize);
 
-  resetToolBtn.addEventListener('click', () => { modalTitle.textContent = 'Reset tool?'; modalDesc.textContent = 'This will remove all images and reset all settings.'; pendingReset = true; pendingDeleteAll = false; pendingDeleteId = null; if (typeof confirmModal.showModal === 'function') confirmModal.showModal(); else if (confirm('Reset tool?')) { images.splice(0, images.length); setEmptyAndRender(); toast('Reset'); } });
+  resetToolBtn.addEventListener('click', () => { modalTitle.textContent = 'Reset tool?'; modalDesc.textContent = 'This will remove all images and reset all settings.'; pendingReset = true; pendingDeleteAll = false; pendingDeleteId = null; if (typeof confirmModal.showModal === 'function') confirmModal.showModal(); else if (confirm('Reset tool?')) { images.splice(0, images.length); setEmptyAndRender(); resetUIControls(); toast('Reset'); } });
   cancelDelete.addEventListener('click', () => { pendingReset = false; confirmModal.close(); });
-  confirmDelete.addEventListener('click', () => { if (pendingReset) { images.forEach(i => { URL.revokeObjectURL(i.url); if (i.cachedCompressed) URL.revokeObjectURL(i.cachedCompressed.url); }); images.splice(0, images.length); setEmptyAndRender(); toast('Reset'); pendingReset = false; confirmModal.close(); return; } });
+  confirmDelete.addEventListener('click', () => { if (pendingReset) { images.forEach(i => { URL.revokeObjectURL(i.url); if (i.cachedCompressed) URL.revokeObjectURL(i.cachedCompressed.url); }); images.splice(0, images.length); setEmptyAndRender(); resetUIControls(); toast('Reset'); pendingReset = false; confirmModal.close(); return; } });
 
   // Drag and drop support
   const enableDrop = (el) => { el.addEventListener('dragover', (e) => { e.preventDefault(); el.classList.add('drag-over'); }); el.addEventListener('dragleave', () => { el.classList.remove('drag-over'); }); el.addEventListener('drop', (e) => { e.preventDefault(); el.classList.remove('drag-over'); if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) { addFiles(e.dataTransfer.files); } }); };
