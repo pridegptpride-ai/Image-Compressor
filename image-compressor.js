@@ -232,7 +232,6 @@
   function setSplitFromClientX(clientX) { const rect = compareViewport.getBoundingClientRect(); const x = Math.min(Math.max(clientX - rect.left, 0), rect.width); const pct = (x / rect.width) * 100; compareViewport.style.setProperty('--split', pct + '%'); }
   function scheduleSplitUpdate(clientX){ pendingX = clientX; if (rafId) return; rafId = requestAnimationFrame(() => { setSplitFromClientX(pendingX); rafId = null; }); }
   function onPointerMove(e){ if (!isDragging) return; scheduleSplitUpdate(e.clientX); }
-  const handle = dragDivider.querySelector('.handle');
   handle.addEventListener('pointerdown', (e) => { isDragging = true; handle.setPointerCapture(e.pointerId); scheduleSplitUpdate(e.clientX); e.stopPropagation(); });
   window.addEventListener('pointerup', () => { isDragging = false; });
   window.addEventListener('pointermove', onPointerMove);
