@@ -314,19 +314,10 @@ body{
 }
 .image-card:hover{box-shadow:0 6px 16px rgba(0,0,0,0.08)}
 
-.top-controls{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px;flex-direction:row !important}
+.top-controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px;flex-direction:row !important}
 
-/* Ensure top controls always stay in same line */
+/* Ensure top controls always stay in same line with better compression */
 @media (max-width: 768px) {
-  .top-controls { 
-    flex-direction: row !important;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center 
-  }
-}
-
-@media (max-width: 480px) {
   .top-controls { 
     flex-direction: row !important;
     flex-wrap: wrap;
@@ -334,23 +325,48 @@ body{
     align-items: center;
     justify-content: flex-start 
   }
+  
+  .field { 
+    flex: 1 1 auto;
+    min-width: 0 
+  }
+}
+
+@media (max-width: 480px) {
+  .top-controls { 
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+    justify-content: flex-start 
+  }
+  
+  .field { 
+    flex: 1 1 auto;
+    min-width: 0 
+  }
 }
 .field{display:flex;flex-direction:column;gap:6px}
-.field input{border:1px solid var(--border);border-radius:12px;padding:10px 12px;min-width:220px}
+.field input{border:1px solid var(--border);border-radius:12px;padding:10px 12px;min-width:180px;max-width:220px;flex:1 1 auto}
 
-/* Responsive field inputs */
+/* Responsive field inputs - better compression */
 @media (max-width: 768px) {
   .field input { 
-    min-width: auto;
-    padding: 12px 14px;
-    font-size: 16px  /* Prevents zoom on iOS */
+    min-width: 140px;
+    max-width: 160px;
+    padding: 8px 10px;
+    font-size: 14px;
+    flex: 1 1 auto 
   }
 }
 
 @media (max-width: 480px) {
   .field input { 
-    padding: 14px 16px;
-    font-size: 16px
+    min-width: 100px;
+    max-width: 120px;
+    padding: 6px 8px;
+    font-size: 13px;
+    flex: 1 1 auto 
   }
 }
 
@@ -484,61 +500,72 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
   }
 }
 
-/* Mobile full width controls - keeping everything in same line */
+/* Mobile full width controls - keeping everything in same line with better compression */
 @media (max-width:700px){
-  .controls{flex-direction:row;flex-wrap:wrap;gap:8px}
-  .top-controls{flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px}
+  .controls{flex-direction:row;flex-wrap:wrap;gap:6px}
+  .top-controls{flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px}
   .controls .btn, .top-controls .btn, .field input, .quality-controls input, .quality-controls label{width:auto;flex:1 1 auto}
   .quality-controls{flex-wrap:wrap;flex-direction:row}
   .quality-controls > *{flex:1 1 auto}
   .quality-controls .icon-btn{flex:0 0 auto}
-  .icon-bar{flex-direction:row !important;flex-wrap:wrap;gap:8px}
+  .icon-bar{flex-direction:row !important;flex-wrap:wrap;gap:6px}
   .icon-bar .icon-btn{width:40px;flex:0 0 auto}
+  
+  .field { 
+    flex: 1 1 auto;
+    min-width: 0 
+  }
 }
 
-/* Enhanced mobile controls - ensuring same line layout */
+/* Enhanced mobile controls - ensuring same line layout with better compression */
 @media (max-width: 480px) {
   .icon-bar { 
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     flex-direction: row !important;
     flex-wrap: wrap 
   }
   
   .icon-bar .icon-btn { 
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     flex: 0 0 auto 
   }
   
   .filter-menu { 
-    min-width: 180px;
-    left: -80px;  /* Center the filter menu */
+    min-width: 160px;
+    left: -70px;  /* Center the filter menu */
     z-index: 1000 
   }
   
   .controls { 
     flex-direction: row !important;
     flex-wrap: wrap;
-    gap: 6px 
+    gap: 4px 
   }
   
   .top-controls { 
     flex-direction: row !important;
     flex-wrap: wrap;
-    gap: 6px;
-    align-items: center 
+    gap: 4px;
+    align-items: center;
+    justify-content: flex-start 
+  }
+  
+  .field { 
+    flex: 1 1 auto;
+    min-width: 0 
   }
 }
 
 .icon-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex-direction:row !important}
 
-/* Ensure icon bar always stays in same line */
+/* Ensure icon bar always stays in same line with better compression */
 @media (max-width: 768px) {
   .icon-bar { 
     flex-direction: row !important;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
     justify-content: flex-start 
   }
 }
@@ -547,7 +574,7 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
   .icon-bar { 
     flex-direction: row !important;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 4px;
     justify-content: center 
   }
 }
