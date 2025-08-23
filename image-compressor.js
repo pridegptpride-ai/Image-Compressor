@@ -117,7 +117,37 @@
   async function toPngBlobFromFile(file) { const bitmap = await createImageBitmap(file); try { return await compressBitmapToMime(bitmap, 100, 'image/png'); } finally { try { bitmap.close && bitmap.close(); } catch {} } }
   async function toSameTypeBlob(file) { const bitmap = await createImageBitmap(file); try { return await compressBitmapToMime(bitmap, 100, file.type || 'image/png'); } finally { try { bitmap.close && bitmap.close(); } catch {} } }
 
-  function renderList() { imageListEl.innerHTML = ''; for (const item of images) { const node = template.content.firstElementChild.cloneNode(true); node.dataset.id = item.id; node.querySelector('img.thumb').src = item.url; node.querySelector('img.thumb').alt = item.name; node.addEventListener('click', () => selectImage(item.id)); node.querySelector('.remove').addEventListener('click', (e) => { e.stopPropagation(); pendingDeleteAll = false; pendingDeleteId = item.id; modalTitle.textContent = 'Delete this image?'; modalDesc.textContent = 'This will remove the selected image from the list.'; if (typeof confirmModal.showModal === 'function') confirmModal.showModal(); }); node.querySelector('[data-action="copy"]').addEventListener('click', async (e) => { e.stopPropagation(); const it = images.find(i => i.id === item.id); const quality = parseInt(qualityRange.value, 10); const c = await ensureCompressed(it, quality); try { await navigator.clipboard.write([ new ClipboardItem({ [c.blob.type]: c.blob }) ]); toast('Copied'); } catch { try { const fallback = await toSameTypeBlob(it.file); await navigator.clipboard.write([ new ClipboardItem({ [fallback.type]: fallback }) ]); toast('Copied'); } catch { try { const png = await toPngBlobFromFile(it.file); await navigator.clipboard.write([ new ClipboardItem({ [png.type]: png }) ]); toast('Copied'); } catch { toast('Copy not supported'); } } } }); node.querySelector('[data-action="download"]').addEventListener('click', async (e) => { e.stopPropagation(); const it = images.find(i => i.id === item.id); const quality = parseInt(qualityRange.value, 10); const c = await ensureCompressed(it, quality); showProcessing('Downloading...'); const a = document.createElement('a'); a.href = URL.createObjectURL(c.blob); a.download = it.name.replace(/(\.[^.]+)$/, '-compressed$1'); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => { URL.revokeObjectURL(a.href); hideProcessing(); toast('Downloaded'); }, 600); }); imageListEl.append(node); } }
+  function renderList() { 
+    // Clear the list completely to prevent duplicate buttons
+    imageListEl.replaceChildren();
+    
+    for (const item of images) { 
+      const node = template.content.firstElementChild.cloneNode(true); 
+      node.dataset.id = item.id; 
+      
+      // Set thumbnail
+      const thumb = node.querySelector('img.thumb');
+      thumb.src = item.url; 
+      thumb.alt = item.name; 
+      
+      // Add click handler for image selection
+      node.addEventListener('click', () => selectImage(item.id)); 
+      
+      // Add remove button handler
+      const removeBtn = node.querySelector('.remove');
+      removeBtn.addEventListener('click', (e) => { 
+        e.stopPropagation(); 
+        pendingDeleteAll = false; 
+        pendingDeleteId = item.id; 
+        modalTitle.textContent = 'Delete this image?'; 
+        modalDesc.textContent = 'This will remove the selected image from the list.'; 
+        if (typeof confirmModal.showModal === 'function') confirmModal.showModal(); 
+      }); 
+      
+      // Append the node
+      imageListEl.append(node); 
+    } 
+  }
 
   function sortList(mode) { if (mode === 'az') images.sort((a,b) => a.name.localeCompare(b.name)); else if (mode === 'za') images.sort((a,b) => b.name.localeCompare(a.name)); else if (mode === 'big') images.sort((a,b) => b.originalBytes - a.originalBytes); else if (mode === 'small') images.sort((a,b) => a.originalBytes - b.originalBytes); renderList(); toast('Sorted'); }
 
@@ -202,6 +232,71 @@
   // Drag and drop support
   const enableDrop = (el) => { el.addEventListener('dragover', (e) => { e.preventDefault(); el.classList.add('drag-over'); }); el.addEventListener('dragleave', () => { el.classList.remove('drag-over'); }); el.addEventListener('drop', (e) => { e.preventDefault(); el.classList.remove('drag-over'); if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) { addFiles(e.dataTransfer.files); } }); };
   uploadFrame.addEventListener('click', () => fileInput.click()); enableDrop(uploadFrame); enableDrop(compareViewport); compareViewport.addEventListener('click', () => { if (!images.length) fileInput.click(); });
+
+  // Event delegation for copy and download buttons
+  imageListEl.addEventListener('click', async (e) => {
+    const target = e.target.closest('[data-action]');
+    if (!target) return;
+    
+    const action = target.getAttribute('data-action');
+    const imageCard = target.closest('.image-card');
+    if (!imageCard) return;
+    
+    const imageId = imageCard.dataset.id;
+    const item = images.find(i => i.id === imageId);
+    if (!item) return;
+    
+    e.stopPropagation();
+    
+    if (action === 'copy') {
+      try {
+        const quality = parseInt(qualityRange.value, 10);
+        const c = await ensureCompressed(item, quality);
+        await navigator.clipboard.write([
+          new ClipboardItem({ [c.blob.type]: c.blob })
+        ]);
+        toast('Copied');
+      } catch (err) {
+        try {
+          const fallback = await toSameTypeBlob(item.file);
+          await navigator.clipboard.write([
+            new ClipboardItem({ [fallback.type]: fallback })
+          ]);
+          toast('Copied');
+        } catch (err2) {
+          try {
+            const png = await toPngBlobFromFile(item.file);
+            await navigator.clipboard.write([
+              new ClipboardItem({ [png.type]: png })
+            ]);
+            toast('Copied');
+          } catch (err3) {
+            toast('Copy not supported');
+          }
+        }
+      }
+    } else if (action === 'download') {
+      try {
+        const quality = parseInt(qualityRange.value, 10);
+        const c = await ensureCompressed(item, quality);
+        showProcessing('Downloading...');
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(c.blob);
+        a.download = item.name.replace(/(\.[^.]+)$/, '-compressed$1');
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => {
+          URL.revokeObjectURL(a.href);
+          hideProcessing();
+          toast('Downloaded');
+        }, 600);
+      } catch (err) {
+        hideProcessing();
+        toast('Download failed');
+      }
+    }
+  });
 
   // Init defaults
   syncQualityInputs(100); toggleFrame(true); setEmptyState();
