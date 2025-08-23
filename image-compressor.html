@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Image Compressor – Bulk, HD & Unlimited</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./image-compressor.css" />
+</head>
+<body>
+  <div class="intro container">
+    <h1>Free Online Image Compressor – Bulk, HD & Unlimited</h1>
+    <p class="subtitle">Compress your images without losing quality. Enjoy HD export, bulk upload, and unlimited file sizes – all free, with live preview and quality control.</p>
+  </div>
+
+  <main class="container main-grid">
+    <!-- LEFT: Upload & List -->
+    <section class="left-panel">
+      <div class="controls icon-bar">
+        <button id="icon-add" class="icon-btn outline" type="button" title="Add Images" aria-label="Add Images">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+        </button>
+        <input id="file-input" type="file" accept="image/*" multiple hidden />
+        <button id="icon-delete-all" class="icon-btn outline" type="button" title="Delete All" aria-label="Delete All" disabled>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 6h18M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </button>
+        <div class="filter-group">
+          <button id="icon-filter" class="icon-btn outline" type="button" title="Filter" aria-haspopup="menu" aria-expanded="false" aria-controls="filter-menu" aria-label="Filter">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 3H2l8 9v7l4 2v-9l8-9z"/>
+            </svg>
+          </button>
+          <div id="filter-menu" class="filter-menu" role="menu" hidden>
+            <button class="menu-item" role="menuitem" data-sort="az">Name A → Z</button>
+            <button class="menu-item" role="menuitem" data-sort="za">Name Z → A</button>
+            <button class="menu-item" role="menuitem" data-sort="big">Biggest First</button>
+            <button class="menu-item" role="menuitem" data-sort="small">Smallest First</button>
+          </div>
+        </div>
+        <button id="download-all" class="btn secondary small" type="button" title="Download All" aria-label="Download All" disabled>Download All</button>
+      </div>
+
+      <div id="empty-state" class="empty-state">Image list is empty. Kindly add images.</div>
+      <div id="image-list" class="image-list" aria-live="polite"></div>
+    </section>
+
+    <!-- RIGHT: Preview & Compression Controls -->
+    <section class="right-panel">
+      <div class="top-controls">
+        <div class="field">
+          <label for="max-size">Max File Size (KB)</label>
+          <input id="max-size" type="number" min="1" placeholder="e.g., 300" />
+        </div>
+        <button id="apply-max" class="btn secondary" type="button">Apply</button>
+        <button id="reset-tool" class="icon-btn outline" type="button" title="Reset" aria-label="Reset tool">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12a9 9 0 1 1-9-9 9 9 0 0 1 9 9z"/>
+            <path d="M3 12h6M12 3v6"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="preview-area">
+        <div class="preview-compare">
+          <div class="compare-viewport" id="compare-viewport" style="display:none; --split:50%">
+            <img id="base-img" alt="Original preview" loading="eager" decoding="async" draggable="false" />
+            <div class="overlay" id="overlay">
+              <img id="overlay-img" alt="Compressed preview" loading="eager" decoding="async" draggable="false" />
+            </div>
+            <div class="divider" id="drag-divider" title="Drag to compare">
+              <div class="handle"></div>
+            </div>
+            <div class="processing" id="processing">
+              <div class="spinner"></div>
+              <span id="processing-text">Processing...</span>
+            </div>
+          </div>
+
+          <div id="upload-frame" class="upload-frame" role="button" tabindex="0">
+            <span>Click or drag & drop here to add images</span>
+          </div>
+
+          <div class="meta-row">
+            <div class="meta" id="original-meta">—</div>
+            <div class="meta" id="compressed-meta">—</div>
+          </div>
+        </div>
+
+        <div class="quality-controls">
+          <label for="quality-range">Quality</label>
+          <input id="quality-range" type="range" min="1" max="100" value="100" />
+          <input id="quality-value" class="quality-value" type="number" min="1" max="100" value="100" />
+        </div>
+
+        <div class="stats" id="stats">—</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <dialog id="confirm-modal" class="modal">
+    <div class="modal-content">
+      <h3>Delete all images?</h3>
+      <p>This action will remove all uploaded images.</p>
+      <div class="modal-actions">
+        <button class="btn ghost" id="cancel-delete" type="button">Cancel</button>
+        <button class="btn danger" id="confirm-delete" type="button">Delete</button>
+      </div>
+    </div>
+  </dialog>
+
+  <template id="image-card-template">
+    <div class="image-card" data-id="">
+      <button class="remove" title="Remove" aria-label="Remove">🗑️</button>
+      <img class="thumb" alt="thumbnail" />
+      <div class="image-actions">
+        <button class="btn small" data-action="copy" type="button">Copy</button>
+        <button class="btn small" data-action="download" type="button">Download</button>
+      </div>
+    </div>
+  </template>
+
+  <script src="./image-compressor.js" defer></script>
+</body>
+</html>
