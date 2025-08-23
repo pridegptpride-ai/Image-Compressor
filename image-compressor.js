@@ -44,6 +44,15 @@
   let pendingDeleteId = null;
   let pendingReset = false;
 
+  // Shared canvas to avoid repeated large allocations
+  let sharedCanvas = document.createElement('canvas');
+  let sharedCtx = sharedCanvas.getContext('2d');
+  function prepareCanvas(width, height){
+    if (sharedCanvas.width !== width) sharedCanvas.width = width;
+    if (sharedCanvas.height !== height) sharedCanvas.height = height;
+    sharedCtx.clearRect(0,0,sharedCanvas.width,sharedCanvas.height);
+  }
+
   function generateId() { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
   function formatBytes(bytes) { if (bytes < 1024) return `${bytes} B`; const kb = bytes / 1024; if (kb < 1024) return `${kb.toFixed(1)} KB`; const mb = kb / 1024; return `${mb.toFixed(2)} MB`; }
   function computeReduction(originalBytes, compressedBytes) { if (!originalBytes || !compressedBytes) return '—'; const reduction = (1 - compressedBytes / originalBytes) * 100; return `${reduction.toFixed(1)}% smaller`; }
@@ -58,22 +67,23 @@
   function getSelected() { return images.find(i => i.id === selectedId); }
 
   async function compressBitmapToMime(bitmap, qualityPercent, mime) {
-    const canvas = document.createElement('canvas');
-    canvas.width = bitmap.width; canvas.height = bitmap.height;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.drawImage(bitmap, 0, 0);
+    prepareCanvas(bitmap.width, bitmap.height);
+    sharedCtx.drawImage(bitmap, 0, 0);
     const q = mime === 'image/jpeg' ? Math.min(Math.max(qualityPercent / 100, 0.01), 1) : 1;
-    const blob = await new Promise(resolve => canvas.toBlob(resolve, mime, q));
+    const blob = await new Promise(resolve => sharedCanvas.toBlob(resolve, mime, q));
     return blob;
   }
 
   async function compressFile(file, qualityPercent) {
     const bitmap = await createImageBitmap(file);
-    const isPng = file.type.includes('png');
-    const mimeType = isPng ? 'image/png' : 'image/jpeg';
-    const blob = await compressBitmapToMime(bitmap, qualityPercent, mimeType);
-    return blob || file;
+    try {
+      const isPng = file.type.includes('png');
+      const mimeType = isPng ? 'image/png' : 'image/jpeg';
+      const blob = await compressBitmapToMime(bitmap, qualityPercent, mimeType);
+      return blob || file;
+    } finally {
+      try { bitmap.close && bitmap.close(); } catch {}
+    }
   }
 
   function showProcessing(text){ processingText.textContent = text || 'Processing...'; processingEl.style.display = 'flex'; }
@@ -85,8 +95,8 @@
 
   async function selectImage(id) { selectedId = id; const item = getSelected(); if (!item) return; baseImg.src = item.url; originalMeta.textContent = `${item.name} • ${formatBytes(item.originalBytes)}`; toggleFrame(false); const quality = parseInt(qualityRange.value, 10); const c = await ensureCompressed(item, quality); overlayImg.src = c.url; updateStats(item, c.blob); imageListEl.querySelectorAll('.image-card').forEach(card => { card.classList.toggle('selected', card.dataset.id === id); }); }
 
-  async function toPngBlobFromFile(file) { const bitmap = await createImageBitmap(file); return await compressBitmapToMime(bitmap, 100, 'image/png'); }
-  async function toSameTypeBlob(file) { const bitmap = await createImageBitmap(file); return await compressBitmapToMime(bitmap, 100, file.type || 'image/png'); }
+  async function toPngBlobFromFile(file) { const bitmap = await createImageBitmap(file); try { return await compressBitmapToMime(bitmap, 100, 'image/png'); } finally { try { bitmap.close && bitmap.close(); } catch {} } }
+  async function toSameTypeBlob(file) { const bitmap = await createImageBitmap(file); try { return await compressBitmapToMime(bitmap, 100, file.type || 'image/png'); } finally { try { bitmap.close && bitmap.close(); } catch {} } }
 
   function renderList() { imageListEl.innerHTML = ''; for (const item of images) { const node = template.content.firstElementChild.cloneNode(true); node.dataset.id = item.id; node.querySelector('img.thumb').src = item.url; node.querySelector('img.thumb').alt = item.name; node.addEventListener('click', () => selectImage(item.id)); node.querySelector('.remove').addEventListener('click', (e) => { e.stopPropagation(); pendingDeleteAll = false; pendingDeleteId = item.id; modalTitle.textContent = 'Delete this image?'; modalDesc.textContent = 'This will remove the selected image from the list.'; if (typeof confirmModal.showModal === 'function') confirmModal.showModal(); }); node.querySelector('[data-action="copy"]').addEventListener('click', async (e) => { e.stopPropagation(); const it = images.find(i => i.id === item.id); const quality = parseInt(qualityRange.value, 10); const c = await ensureCompressed(it, quality); try { await navigator.clipboard.write([ new ClipboardItem({ [c.blob.type]: c.blob }) ]); toast('Copied'); } catch { try { const fallback = await toSameTypeBlob(it.file); await navigator.clipboard.write([ new ClipboardItem({ [fallback.type]: fallback }) ]); toast('Copied'); } catch { try { const png = await toPngBlobFromFile(it.file); await navigator.clipboard.write([ new ClipboardItem({ [png.type]: png }) ]); toast('Copied'); } catch { toast('Copy not supported'); } } } }); node.querySelector('[data-action="download"]').addEventListener('click', async (e) => { e.stopPropagation(); const it = images.find(i => i.id === item.id); const quality = parseInt(qualityRange.value, 10); const c = await ensureCompressed(it, quality); showProcessing('Downloading...'); const a = document.createElement('a'); a.href = URL.createObjectURL(c.blob); a.download = it.name.replace(/(\.[^.]+)$/, '-compressed$1'); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => { URL.revokeObjectURL(a.href); hideProcessing(); toast('Downloaded'); }, 600); }); imageListEl.prepend(node); } }
 
@@ -111,39 +121,41 @@
     showProcessing('Optimizing...');
     const targetBytes = Math.round(kb * 1024);
     const bitmap = await createImageBitmap(item.file);
-
-    async function searchForTarget(mime) {
-      let low = 1, high = 100;
-      let best = null;
-      let smallest = null;
-      for (let i = 0; i < 10; i++) {
-        const mid = Math.round((low + high) / 2);
-        const blob = await compressBitmapToMime(bitmap, mid, mime);
-        if (!smallest || blob.size < smallest.size) smallest = { q: mid, blob };
-        if (blob.size <= targetBytes) { best = { q: mid, blob }; high = mid - 1; }
-        else { low = mid + 1; }
+    try {
+      async function searchForTarget(mime) {
+        let low = 1, high = 100;
+        let best = null;
+        let smallest = null;
+        for (let i = 0; i < 9; i++) { // fewer iterations to reduce memory pressure
+          const mid = Math.round((low + high) / 2);
+          const blob = await compressBitmapToMime(bitmap, mid, mime);
+          if (!smallest || blob.size < smallest.size) smallest = { q: mid, blob };
+          if (blob.size <= targetBytes) { best = { q: mid, blob }; high = mid - 1; }
+          else { low = mid + 1; }
+          await new Promise(r => setTimeout(r, 0)); // yield
+        }
+        return best || smallest;
       }
-      return best || smallest;
+
+      const originalMime = item.file.type.includes('png') ? 'image/png' : 'image/jpeg';
+      let chosen = await searchForTarget(originalMime);
+      if (chosen.blob.size > targetBytes && originalMime === 'image/png') {
+        const jpegTry = await searchForTarget('image/jpeg');
+        if (jpegTry && jpegTry.blob.size < chosen.blob.size) chosen = jpegTry;
+      }
+
+      const url = URL.createObjectURL(chosen.blob);
+      if (item.cachedCompressed && item.cachedCompressed.url) URL.revokeObjectURL(item.cachedCompressed.url);
+      item.cachedCompressed = { quality: chosen.q, blob: chosen.blob, url };
+      overlayImg.src = url;
+      qualityRange.value = String(chosen.q);
+      qualityValueInput.value = String(chosen.q);
+      updateStats(item, chosen.blob);
+      toast(chosen.blob.size <= targetBytes ? 'Optimized' : 'Optimized to best possible');
+    } finally {
+      try { bitmap.close && bitmap.close(); } catch {}
+      hideProcessing();
     }
-
-    // Prefer original mime; if PNG and cannot meet target, try JPEG fallback
-    const originalMime = item.file.type.includes('png') ? 'image/png' : 'image/jpeg';
-    let chosen = await searchForTarget(originalMime);
-    if (chosen.blob.size > targetBytes && originalMime === 'image/png') {
-      const jpegTry = await searchForTarget('image/jpeg');
-      if (jpegTry && jpegTry.blob.size < chosen.blob.size) chosen = jpegTry;
-    }
-
-    hideProcessing();
-
-    const url = URL.createObjectURL(chosen.blob);
-    if (item.cachedCompressed && item.cachedCompressed.url) URL.revokeObjectURL(item.cachedCompressed.url);
-    item.cachedCompressed = { quality: chosen.q, blob: chosen.blob, url };
-    overlayImg.src = url;
-    qualityRange.value = String(chosen.q);
-    qualityValueInput.value = String(chosen.q);
-    updateStats(item, chosen.blob);
-    toast(chosen.blob.size <= targetBytes ? 'Optimized' : 'Optimized to best possible');
   }
 
   // Divider drag
