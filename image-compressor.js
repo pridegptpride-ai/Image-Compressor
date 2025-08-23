@@ -83,10 +83,32 @@
     const bitmap = await createImageBitmap(file);
     try {
       const isPng = file.type.includes('png');
-      // For PNG, compress to JPEG when quality < 100; otherwise compress to PNG
-      const mimeType = isPng && qualityPercent < 100 ? 'image/jpeg' : (isPng ? 'image/png' : 'image/jpeg');
-      const blob = await compressBitmapToMime(bitmap, qualityPercent, mimeType);
-      return blob || file;
+      
+      // At 100% quality, try multiple compression strategies for best file size
+      if (qualityPercent >= 100) {
+        // Try PNG first for lossless compression
+        if (isPng) {
+          const pngBlob = await compressBitmapToMime(bitmap, 100, 'image/png');
+          // If PNG is smaller, use it
+          if (pngBlob && pngBlob.size < file.size) {
+            return pngBlob;
+          }
+        }
+        
+        // Try JPEG at 100% quality for better compression
+        const jpegBlob = await compressBitmapToMime(bitmap, 100, 'image/jpeg');
+        if (jpegBlob && jpegBlob.size < file.size) {
+          return jpegBlob;
+        }
+        
+        // If no compression achieved, return original
+        return file;
+      } else {
+        // For lower quality, use standard compression
+        const mimeType = isPng && qualityPercent < 100 ? 'image/jpeg' : (isPng ? 'image/png' : 'image/jpeg');
+        const blob = await compressBitmapToMime(bitmap, qualityPercent, mimeType);
+        return blob || file;
+      }
     } finally { try { bitmap.close && bitmap.close(); } catch {} }
   }
 
@@ -162,7 +184,23 @@
 
   async function downloadAll() { if (!images.length) return; showProcessing('Downloading all...'); for (const it of images) { const quality = parseInt(qualityRange.value, 10); const c = await ensureCompressed(it, quality); const a = document.createElement('a'); a.href = URL.createObjectURL(c.blob); a.download = it.name.replace(/(\.[^.]+)$/, '-compressed$1'); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); } hideProcessing(); toast('Downloaded'); }
 
-  function syncQualityInputs(val) { const v = Math.max(1, Math.min(100, parseInt(val || '100', 10))); qualityRange.value = String(v); qualityValueInput.value = String(v); const current = getSelected(); if (current) ensureCompressed(current, v).then(c => { overlayImg.src = c.url; updateStats(current, c.blob); }); }
+  function syncQualityInputs(val) { 
+    const v = Math.max(1, Math.min(100, parseInt(val || '100', 10))); 
+    qualityRange.value = String(v); 
+    qualityValueInput.value = String(v); 
+    
+    // Update percentage display
+    const percentageEl = document.getElementById('quality-percentage');
+    if (percentageEl) {
+      percentageEl.textContent = v + '%';
+    }
+    
+    const current = getSelected(); 
+    if (current) ensureCompressed(current, v).then(c => { 
+      overlayImg.src = c.url; 
+      updateStats(current, c.blob); 
+    }); 
+  }
 
   async function applyMaxSize() {
     const kb = parseFloat(maxSizeInput.value);

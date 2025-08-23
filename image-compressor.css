@@ -78,11 +78,11 @@ body{
   position: relative;
   border: 1px solid var(--border);
   border-radius: 12px;
-  overflow: hidden;
+  overflow: visible;
   background: #fafafe;
   transition: box-shadow .2s ease, outline-color .2s ease, border-color .2s ease;
   margin: 5px 2px;
-  min-height: 200px;
+  min-height: 220px;
   display: flex;
   flex-direction: column;
 }
@@ -105,6 +105,9 @@ body{
   border-top: 1px solid rgba(99, 0, 226, 0.1);
   margin-top: auto;
   flex-shrink: 0;
+  min-height: 62px;
+  position: relative;
+  z-index: 2;
 }
 
 /* Scoped button styles - won't conflict with global .btn */
@@ -120,12 +123,14 @@ body{
   color: #fff;
   text-decoration: none;
   white-space: nowrap;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  min-width: 0;
+  z-index: 1;
 }
 
 /* Shimmer effect for buttons */
@@ -168,15 +173,18 @@ body{
   box-shadow: 0 4px 16px rgba(99, 0, 226, 0.4);
 }
 
-/* Button active states */
+/* Button active states - removed border */
 .image-card .image-actions .image-action-btn:active {
   transform: translateY(0);
+  outline: none;
+  border: none;
 }
 
-/* Button focus states */
+/* Button focus states - removed border */
 .image-card .image-actions .image-action-btn:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(99, 0, 226, 0.3);
+  box-shadow: none;
+  border: none;
 }
 
 /* Icon animations */
