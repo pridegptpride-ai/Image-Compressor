@@ -48,6 +48,23 @@
   function formatBytes(bytes) { if (bytes < 1024) return `${bytes} B`; const kb = bytes / 1024; if (kb < 1024) return `${kb.toFixed(1)} KB`; const mb = kb / 1024; return `${mb.toFixed(2)} MB`; }
   function computeReduction(originalBytes, compressedBytes) { if (!originalBytes || !compressedBytes) return '—'; const reduction = (1 - compressedBytes / originalBytes) * 100; return `${reduction.toFixed(1)}% smaller`; }
 
+  function toast(message) {
+    const div = document.createElement('div');
+    div.textContent = message;
+    div.style.position = 'fixed';
+    div.style.left = '50%';
+    div.style.bottom = '24px';
+    div.style.transform = 'translateX(-50%)';
+    div.style.background = 'linear-gradient(90deg, var(--primary), var(--secondary))';
+    div.style.color = '#fff';
+    div.style.padding = '10px 14px';
+    div.style.borderRadius = '12px';
+    div.style.boxShadow = 'var(--shadow)';
+    div.style.zIndex = '9999';
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 1800);
+  }
+
   function setEmptyState() {
     const has = images.length > 0;
     emptyState.style.display = has ? 'none' : '';
@@ -97,6 +114,11 @@
     return item.cachedCompressed;
   }
 
+  function updateStats(item, compressedBlob) {
+    compressedMeta.textContent = `${item.name.replace(/(\.[^.]+)$/,'-compressed$1')} • ${formatBytes(compressedBlob.size)}`;
+    statsEl.textContent = `${computeReduction(item.originalBytes, compressedBlob.size)} • Original: ${formatBytes(item.originalBytes)} → Compressed: ${formatBytes(compressedBlob.size)}`;
+  }
+
   async function selectImage(id) {
     selectedId = id;
     const item = getSelected();
@@ -107,8 +129,7 @@
     const quality = parseInt(qualityRange.value, 10);
     const c = await ensureCompressed(item, quality);
     overlayImg.src = c.url;
-    compressedMeta.textContent = `${item.name.replace(/(\.[^.]+)$/,'-compressed$1')} • ${formatBytes(c.blob.size)}`;
-    statsEl.textContent = `${computeReduction(item.originalBytes, c.blob.size)} • Original: ${formatBytes(item.originalBytes)} → Compressed: ${formatBytes(c.blob.size)}`;
+    updateStats(item, c.blob);
     imageListEl.querySelectorAll('.image-card').forEach(card => { card.classList.toggle('selected', card.dataset.id === id); });
   }
 
@@ -121,8 +142,8 @@
       node.querySelector('img.thumb').alt = item.name;
       node.addEventListener('click', () => selectImage(item.id));
       node.querySelector('.remove').addEventListener('click', (e) => { e.stopPropagation(); pendingDeleteAll = false; pendingDeleteId = item.id; modalTitle.textContent = 'Delete this image?'; modalDesc.textContent = 'This will remove the selected image from the list.'; if (typeof confirmModal.showModal === 'function') confirmModal.showModal(); });
-      node.querySelector('[data-action="copy"]').addEventListener('click', async (e) => { e.stopPropagation(); const it = images.find(i => i.id === item.id); const quality = parseInt(qualityRange.value, 10); const c = await ensureCompressed(it, quality); try { await navigator.clipboard.write([ new ClipboardItem({ [c.blob.type]: c.blob }) ]); toast('Compressed image copied'); } catch { toast('Copy not supported in this browser'); } });
-      node.querySelector('[data-action="download"]').addEventListener('click', async (e) => { e.stopPropagation(); const it = images.find(i => i.id === item.id); const quality = parseInt(qualityRange.value, 10); const c = await ensureCompressed(it, quality); showProcessing('Downloading...'); const a = document.createElement('a'); a.href = URL.createObjectURL(c.blob); a.download = it.name.replace(/(\.[^.]+)$/, '-compressed$1'); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => { URL.revokeObjectURL(a.href); hideProcessing(); }, 800); });
+      node.querySelector('[data-action="copy"]').addEventListener('click', async (e) => { e.stopPropagation(); const it = images.find(i => i.id === item.id); const quality = parseInt(qualityRange.value, 10); const c = await ensureCompressed(it, quality); try { await navigator.clipboard.write([ new ClipboardItem({ [c.blob.type]: c.blob }) ]); toast('Copied compressed image'); } catch { toast('Copy not supported'); } });
+      node.querySelector('[data-action="download"]').addEventListener('click', async (e) => { e.stopPropagation(); const it = images.find(i => i.id === item.id); const quality = parseInt(qualityRange.value, 10); const c = await ensureCompressed(it, quality); showProcessing('Downloading...'); const a = document.createElement('a'); a.href = URL.createObjectURL(c.blob); a.download = it.name.replace(/(\.[^.]+)$/, '-compressed$1'); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => { URL.revokeObjectURL(a.href); hideProcessing(); toast('Download started'); }, 600); });
       imageListEl.prepend(node);
     }
   }
@@ -162,7 +183,7 @@
     if (!images.length) return;
     showProcessing('Downloading all...');
     for (const it of images) { const quality = parseInt(qualityRange.value, 10); const c = await ensureCompressed(it, quality); const a = document.createElement('a'); a.href = URL.createObjectURL(c.blob); a.download = it.name.replace(/(\.[^.]+)$/, '-compressed$1'); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
-    hideProcessing();
+    hideProcessing(); toast('Downloads started');
   }
 
   function syncQualityInputs(val) {
@@ -170,7 +191,7 @@
     qualityRange.value = String(v);
     qualityValueInput.value = String(v);
     const current = getSelected();
-    if (current) ensureCompressed(current, v).then(c => { overlayImg.src = c.url; compressedMeta.textContent = `${current.name.replace(/(\.[^.]+)$/,'-compressed$1')} • ${formatBytes(c.blob.size)}`; statsEl.textContent = `${computeReduction(current.originalBytes, c.blob.size)} • Original: ${formatBytes(current.originalBytes)} → Compressed: ${formatBytes(c.blob.size)}`; });
+    if (current) ensureCompressed(current, v).then(c => { overlayImg.src = c.url; updateStats(current, c.blob); });
   }
 
   // Divider drag
