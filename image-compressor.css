@@ -109,6 +109,9 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
 .icon-btn{appearance:none;border:none;background:#f7f7fb;border-radius:12px;width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.06);font-size:18px}
 .icon-btn:hover{background:#efeff7}
 .filter-group{display:flex;align-items:center;gap:8px}
-.filter-select{border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:#fff}
+.filter-select{border:2px solid var(--border);border-radius:12px;padding:10px 12px;background:#fff;color:var(--text)}
+.filter-select:focus{outline:none;border-color:var(--secondary);box-shadow:0 0 0 3px rgba(142,67,240,.15)}
 
 .quality-value{width:64px;border:1px solid var(--border);border-radius:10px;padding:8px 10px;text-align:center}
+.icon-btn.outline{background:transparent;border:2px solid var(--border);color:var(--primary)}
+.icon-btn.outline:hover{border-color:var(--secondary);color:var(--secondary);background:rgba(142,67,240,0.06)}

@@ -68,7 +68,6 @@
   function getSelected() { return images.find(i => i.id === selectedId); }
 
   async function compressFile(file, qualityPercent) {
-    // Ensure highest quality by default; only reduce when requested
     const imgBitmap = await createImageBitmap(file);
     const canvas = document.createElement('canvas');
     canvas.width = imgBitmap.width;
@@ -201,8 +200,6 @@
 
   async function downloadAll() {
     if (!images.length) return;
-    const zipNamePrefix = 'compressed-';
-    // Fallback simple sequential downloads if JSZip not used: trigger multiple downloads
     for (const it of images) {
       const quality = parseInt(qualityRange.value, 10);
       const c = await ensureCompressed(it, quality);

@@ -19,19 +19,31 @@
     <!-- LEFT: Upload & List -->
     <section class="left-panel">
       <div class="controls icon-bar">
-        <button id="icon-add" class="icon-btn" title="Add Images" aria-label="Add Images">➕</button>
+        <button id="icon-add" class="icon-btn outline" type="button" title="Add Images" aria-label="Add Images">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+        </button>
         <input id="file-input" type="file" accept="image/*" multiple hidden />
-        <button id="icon-delete-all" class="icon-btn" title="Delete All" aria-label="Delete All" disabled>🧺</button>
+        <button id="icon-delete-all" class="icon-btn outline" type="button" title="Delete All" aria-label="Delete All" disabled>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 6h18M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </button>
         <div class="filter-group">
-          <button id="icon-filter" class="icon-btn" title="Filter" aria-label="Filter">🔽</button>
-          <select id="filter-select" class="filter-select">
+          <button id="icon-filter" class="icon-btn outline" type="button" title="Filter" aria-label="Filter">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 3H2l8 9v7l4 2v-9l8-9z"/>
+            </svg>
+          </button>
+          <select id="filter-select" class="filter-select" aria-label="Sort images">
             <option value="az">Name A → Z</option>
             <option value="za">Name Z → A</option>
             <option value="big">Biggest First</option>
             <option value="small">Smallest First</option>
           </select>
         </div>
-        <button id="download-all" class="btn secondary small" title="Download All" aria-label="Download All" disabled>Download All</button>
+        <button id="download-all" class="btn secondary small" type="button" title="Download All" aria-label="Download All" disabled>Download All</button>
       </div>
 
       <div id="empty-state" class="empty-state">Image list is empty. Kindly add images.</div>
@@ -45,12 +57,12 @@
           <label for="max-size">Max File Size (KB)</label>
           <input id="max-size" type="number" min="1" placeholder="e.g., 300" />
         </div>
-        <button id="apply-max" class="btn secondary">Apply</button>
+        <button id="apply-max" class="btn secondary" type="button">Apply</button>
       </div>
 
       <div class="preview-area">
         <div class="preview-compare">
-          <div class="compare-viewport" id="compare-viewport" style="--split:50%">
+          <div class="compare-viewport" id="compare-viewport" style="display:none; --split:50%">
             <img id="base-img" alt="Original preview" loading="eager" decoding="async" draggable="false" />
             <div class="overlay" id="overlay">
               <img id="overlay-img" alt="Compressed preview" loading="eager" decoding="async" draggable="false" />
@@ -76,10 +88,10 @@
 
         <div class="quality-controls">
           <label for="quality-range">Quality</label>
-          <button id="quality-decrease" class="icon-btn" aria-label="Decrease quality">−</button>
+          <button id="quality-decrease" class="icon-btn outline" type="button" aria-label="Decrease quality">−</button>
           <input id="quality-range" type="range" min="1" max="100" value="100" />
           <input id="quality-value" class="quality-value" type="number" min="1" max="100" value="100" />
-          <button id="quality-increase" class="icon-btn" aria-label="Increase quality">+</button>
+          <button id="quality-increase" class="icon-btn outline" type="button" aria-label="Increase quality">+</button>
         </div>
 
         <div class="stats" id="stats">—</div>
@@ -93,8 +105,8 @@
       <h3>Delete all images?</h3>
       <p>This action will remove all uploaded images.</p>
       <div class="modal-actions">
-        <button class="btn ghost" id="cancel-delete">Cancel</button>
-        <button class="btn danger" id="confirm-delete">Delete</button>
+        <button class="btn ghost" id="cancel-delete" type="button">Cancel</button>
+        <button class="btn danger" id="confirm-delete" type="button">Delete</button>
       </div>
     </div>
   </dialog>
@@ -104,8 +116,8 @@
       <button class="remove" title="Remove" aria-label="Remove">🗑️</button>
       <img class="thumb" alt="thumbnail" />
       <div class="image-actions">
-        <button class="btn small" data-action="copy">Copy</button>
-        <button class="btn small" data-action="download">Download</button>
+        <button class="btn small" data-action="copy" type="button">Copy</button>
+        <button class="btn small" data-action="download" type="button">Download</button>
       </div>
     </div>
   </template>
