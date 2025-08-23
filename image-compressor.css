@@ -49,6 +49,85 @@ body{
 .image-card .remove:hover{background:#e64547}
 .image-card .thumb{display:block;width:100%;height:110px;object-fit:cover;background:#f1f1f7}
 .image-card .image-actions{display:flex;gap:10px;justify-content:center;align-items:center;padding:10px 16px}
+
+/* Enhanced button styling for image actions */
+.image-card .image-actions .btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  border: 1px solid transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.image-card .image-actions .btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.image-card .image-actions .btn:hover::before {
+  left: 100%;
+}
+
+.image-card .image-actions .btn.primary {
+  background: linear-gradient(135deg, var(--primary), #7a1fd8);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(99, 0, 226, 0.3);
+}
+
+.image-card .image-actions .btn.primary:hover {
+  background: linear-gradient(135deg, #5a00cb, var(--primary));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(99, 0, 226, 0.4);
+}
+
+.image-card .image-actions .btn.secondary {
+  background: linear-gradient(135deg, var(--secondary), #a55ff2);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(142, 67, 240, 0.3);
+}
+
+.image-card .image-actions .btn.secondary:hover {
+  background: linear-gradient(135deg, #7b39d5, var(--secondary));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(142, 67, 240, 0.4);
+}
+
+.image-card .image-actions .btn:active {
+  transform: translateY(0);
+  transition: transform 0.1s ease;
+}
+
+.image-card .image-actions .btn svg {
+  transition: transform 0.2s ease;
+}
+
+.image-card .image-actions .btn:hover svg {
+  transform: scale(1.1);
+}
+
+/* Focus states for accessibility */
+.image-card .image-actions .btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 0, 226, 0.3);
+}
+
+.image-card .image-actions .btn.primary:focus {
+  box-shadow: 0 0 0 3px rgba(99, 0, 226, 0.3);
+}
+
+.image-card .image-actions .btn.secondary:focus {
+  box-shadow: 0 0 0 3px rgba(142, 67, 240, 0.3);
+}
 .image-card:hover{box-shadow:0 6px 16px rgba(0,0,0,0.08)}
 
 .top-controls{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px}
