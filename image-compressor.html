@@ -31,17 +31,17 @@
           </svg>
         </button>
         <div class="filter-group">
-          <button id="icon-filter" class="icon-btn outline" type="button" title="Filter" aria-label="Filter">
+          <button id="icon-filter" class="icon-btn outline" type="button" title="Filter" aria-haspopup="menu" aria-expanded="false" aria-controls="filter-menu" aria-label="Filter">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M22 3H2l8 9v7l4 2v-9l8-9z"/>
             </svg>
           </button>
-          <select id="filter-select" class="filter-select" aria-label="Sort images">
-            <option value="az">Name A → Z</option>
-            <option value="za">Name Z → A</option>
-            <option value="big">Biggest First</option>
-            <option value="small">Smallest First</option>
-          </select>
+          <div id="filter-menu" class="filter-menu" role="menu" hidden>
+            <button class="menu-item" role="menuitem" data-sort="az">Name A → Z</button>
+            <button class="menu-item" role="menuitem" data-sort="za">Name Z → A</button>
+            <button class="menu-item" role="menuitem" data-sort="big">Biggest First</button>
+            <button class="menu-item" role="menuitem" data-sort="small">Smallest First</button>
+          </div>
         </div>
         <button id="download-all" class="btn secondary small" type="button" title="Download All" aria-label="Download All" disabled>Download All</button>
       </div>

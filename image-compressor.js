@@ -2,7 +2,8 @@
   const iconAdd = document.getElementById('icon-add');
   const deleteAllBtn = document.getElementById('icon-delete-all');
   const downloadAllBtn = document.getElementById('download-all');
-  const filterSelect = document.getElementById('filter-select');
+  const filterButton = document.getElementById('icon-filter');
+  const filterMenu = document.getElementById('filter-menu');
 
   const fileInput = document.getElementById('file-input');
   const imageListEl = document.getElementById('image-list');
@@ -75,11 +76,9 @@
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0,0,canvas.width,canvas.height);
     ctx.drawImage(imgBitmap, 0, 0);
-
     const isPng = file.type.includes('png');
     const mimeType = isPng ? 'image/png' : 'image/jpeg';
     const q = isPng ? 1 : Math.min(Math.max(qualityPercent / 100, 0.01), 1);
-
     const blob = await new Promise(resolve => canvas.toBlob(resolve, mimeType, q));
     return blob || file;
   }
@@ -99,17 +98,14 @@
     selectedId = id;
     const item = getSelected();
     if (!item) return;
-
     baseImg.src = item.url;
     originalMeta.textContent = `${item.name} • ${formatBytes(item.originalBytes)}`;
     toggleFrame(false);
-
     const quality = parseInt(qualityRange.value, 10);
     const c = await ensureCompressed(item, quality);
     overlayImg.src = c.url;
     compressedMeta.textContent = `${item.name.replace(/(\.[^.]+)$/,'-compressed$1')} • ${formatBytes(c.blob.size)}`;
     statsEl.textContent = `${computeReduction(item.originalBytes, c.blob.size)} • Original: ${formatBytes(item.originalBytes)} → Compressed: ${formatBytes(c.blob.size)}`;
-
     imageListEl.querySelectorAll('.image-card').forEach(card => { card.classList.toggle('selected', card.dataset.id === id); });
   }
 
@@ -120,43 +116,10 @@
       node.dataset.id = item.id;
       node.querySelector('img.thumb').src = item.url;
       node.querySelector('img.thumb').alt = item.name;
-
       node.addEventListener('click', () => selectImage(item.id));
-
-      node.querySelector('.remove').addEventListener('click', (e) => {
-        e.stopPropagation();
-        pendingDeleteAll = false;
-        pendingDeleteId = item.id;
-        modalTitle.textContent = 'Delete this image?';
-        modalDesc.textContent = 'This will remove the selected image from the list.';
-        if (typeof confirmModal.showModal === 'function') confirmModal.showModal();
-      });
-
-      node.querySelector('[data-action="copy"]').addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const it = images.find(i => i.id === item.id);
-        const quality = parseInt(qualityRange.value, 10);
-        const c = await ensureCompressed(it, quality);
-        try {
-          await navigator.clipboard.write([ new ClipboardItem({ [c.blob.type]: c.blob }) ]);
-          toast('Compressed image copied');
-        } catch {
-          toast('Copy not supported in this browser');
-        }
-      });
-
-      node.querySelector('[data-action="download"]').addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const it = images.find(i => i.id === item.id);
-        const quality = parseInt(qualityRange.value, 10);
-        const c = await ensureCompressed(it, quality);
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(c.blob);
-        a.download = it.name.replace(/(\.[^.]+)$/, '-compressed$1');
-        document.body.appendChild(a); a.click(); a.remove();
-        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-      });
-
+      node.querySelector('.remove').addEventListener('click', (e) => { e.stopPropagation(); pendingDeleteAll = false; pendingDeleteId = item.id; modalTitle.textContent = 'Delete this image?'; modalDesc.textContent = 'This will remove the selected image from the list.'; if (typeof confirmModal.showModal === 'function') confirmModal.showModal(); });
+      node.querySelector('[data-action="copy"]').addEventListener('click', async (e) => { e.stopPropagation(); const it = images.find(i => i.id === item.id); const quality = parseInt(qualityRange.value, 10); const c = await ensureCompressed(it, quality); try { await navigator.clipboard.write([ new ClipboardItem({ [c.blob.type]: c.blob }) ]); toast('Compressed image copied'); } catch { toast('Copy not supported in this browser'); } });
+      node.querySelector('[data-action="download"]').addEventListener('click', async (e) => { e.stopPropagation(); const it = images.find(i => i.id === item.id); const quality = parseInt(qualityRange.value, 10); const c = await ensureCompressed(it, quality); const a = document.createElement('a'); a.href = URL.createObjectURL(c.blob); a.download = it.name.replace(/(\.[^.]+)$/, '-compressed$1'); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); });
       imageListEl.prepend(node);
     }
   }
@@ -174,11 +137,7 @@
   function addFiles(fileList) {
     const files = Array.from(fileList).filter(f => f && f.type.startsWith('image/'));
     if (!files.length) return;
-    for (const file of files) {
-      const id = generateId();
-      const url = URL.createObjectURL(file);
-      images.push({ id, file, url, originalBytes: file.size, name: file.name, type: file.type });
-    }
+    for (const file of files) { const id = generateId(); const url = URL.createObjectURL(file); images.push({ id, file, url, originalBytes: file.size, name: file.name, type: file.type }); }
     setEmptyAndRender();
   }
 
@@ -192,36 +151,19 @@
     setEmptyAndRender();
   }
 
-  function removeAllImages() {
-    images.forEach(i => { URL.revokeObjectURL(i.url); if (i.cachedCompressed) URL.revokeObjectURL(i.cachedCompressed.url); });
-    images.splice(0, images.length);
-    setEmptyAndRender();
-  }
+  function removeAllImages() { images.forEach(i => { URL.revokeObjectURL(i.url); if (i.cachedCompressed) URL.revokeObjectURL(i.cachedCompressed.url); }); images.splice(0, images.length); setEmptyAndRender(); }
 
   async function downloadAll() {
     if (!images.length) return;
-    for (const it of images) {
-      const quality = parseInt(qualityRange.value, 10);
-      const c = await ensureCompressed(it, quality);
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(c.blob);
-      a.download = it.name.replace(/(\.[^.]+)$/, '-compressed$1');
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-    }
+    for (const it of images) { const quality = parseInt(qualityRange.value, 10); const c = await ensureCompressed(it, quality); const a = document.createElement('a'); a.href = URL.createObjectURL(c.blob); a.download = it.name.replace(/(\.[^.]+)$/, '-compressed$1'); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
   }
 
-  // Quality controls
   function syncQualityInputs(val) {
     const v = Math.max(1, Math.min(100, parseInt(val || '100', 10)));
     qualityRange.value = String(v);
     qualityValueInput.value = String(v);
     const current = getSelected();
-    if (current) ensureCompressed(current, v).then(c => {
-      overlayImg.src = c.url;
-      compressedMeta.textContent = `${current.name.replace(/(\.[^.]+)$/,'-compressed$1')} • ${formatBytes(c.blob.size)}`;
-      statsEl.textContent = `${computeReduction(current.originalBytes, c.blob.size)} • Original: ${formatBytes(current.originalBytes)} → Compressed: ${formatBytes(c.blob.size)}`;
-    });
+    if (current) ensureCompressed(current, v).then(c => { overlayImg.src = c.url; compressedMeta.textContent = `${current.name.replace(/(\.[^.]+)$/,'-compressed$1')} • ${formatBytes(c.blob.size)}`; statsEl.textContent = `${computeReduction(current.originalBytes, c.blob.size)} • Original: ${formatBytes(current.originalBytes)} → Compressed: ${formatBytes(c.blob.size)}`; });
   }
 
   // Divider drag
@@ -233,21 +175,34 @@
   window.addEventListener('pointerup', () => { isDragging = false; });
   window.addEventListener('pointermove', onPointerMove);
 
+  // Filter menu events
+  filterButton.addEventListener('click', () => {
+    const isHidden = filterMenu.hasAttribute('hidden');
+    if (isHidden) { filterMenu.removeAttribute('hidden'); filterButton.setAttribute('aria-expanded','true'); }
+    else { filterMenu.setAttribute('hidden',''); filterButton.setAttribute('aria-expanded','false'); }
+  });
+  filterMenu.addEventListener('click', (e) => {
+    const target = e.target.closest('.menu-item');
+    if (!target) return;
+    const mode = target.getAttribute('data-sort');
+    sortList(mode);
+    filterMenu.setAttribute('hidden','');
+    filterButton.setAttribute('aria-expanded','false');
+  });
+  document.addEventListener('click', (e) => {
+    if (!filterMenu.contains(e.target) && e.target !== filterButton) {
+      filterMenu.setAttribute('hidden','');
+      filterButton.setAttribute('aria-expanded','false');
+    }
+  }, true);
+
   // Events
   iconAdd.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', (e) => { const files = e.target.files; if (files && files.length) addFiles(files); e.target.value = ''; });
-
-  filterSelect.addEventListener('change', (e) => { sortList(e.target.value); });
-
-  deleteAllBtn.addEventListener('click', () => {
-    pendingDeleteAll = true; pendingDeleteId = null; modalTitle.textContent = 'Delete all images?'; modalDesc.textContent = 'This action will remove all uploaded images.';
-    if (typeof confirmModal.showModal === 'function') confirmModal.showModal(); else if (confirm('Delete all images?')) removeAllImages();
-  });
+  deleteAllBtn.addEventListener('click', () => { pendingDeleteAll = true; pendingDeleteId = null; modalTitle.textContent = 'Delete all images?'; modalDesc.textContent = 'This action will remove all uploaded images.'; if (typeof confirmModal.showModal === 'function') confirmModal.showModal(); else if (confirm('Delete all images?')) removeAllImages(); });
   cancelDelete.addEventListener('click', () => confirmModal.close());
   confirmDelete.addEventListener('click', () => { if (pendingDeleteAll) removeAllImages(); if (pendingDeleteId) removeImage(pendingDeleteId); pendingDeleteAll = false; pendingDeleteId = null; confirmModal.close(); });
-
   downloadAllBtn.addEventListener('click', downloadAll);
-
   qualityRange.addEventListener('input', () => syncQualityInputs(qualityRange.value));
   qualityValueInput.addEventListener('change', () => syncQualityInputs(qualityValueInput.value));
   qualityDecrease.addEventListener('click', () => syncQualityInputs(parseInt(qualityRange.value,10) - 1));
