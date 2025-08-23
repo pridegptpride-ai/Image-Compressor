@@ -1,0 +1,792 @@
+/* WordPress Compatible Image Compressor CSS - Use in Elementor Pro Custom CSS */
+/* All classes are prefixed with wp-image-compressor- to avoid conflicts */
+
+.wp-image-compressor-container {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* CSS Variables - Scoped to avoid conflicts */
+.wp-image-compressor-container {
+  --wp-primary: #6300e2;
+  --wp-secondary: #8e43f0;
+  --wp-text: #1a1a1a;
+  --wp-muted: #6b7280;
+  --wp-border: #e5e7eb;
+  --wp-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Intro Section */
+.wp-image-compressor-intro {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.wp-image-compressor-intro h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--wp-text);
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.wp-image-compressor-subtitle {
+  font-size: 1.125rem;
+  color: var(--wp-muted);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Main Grid Layout */
+.wp-image-compressor-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+/* Left Panel */
+.wp-image-compressor-left-panel {
+  background: #fafafe;
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid var(--wp-border);
+}
+
+/* Right Panel */
+.wp-image-compressor-right-panel {
+  background: #fafafe;
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid var(--wp-border);
+}
+
+/* Controls */
+.wp-image-compressor-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+/* Icon Bar */
+.wp-image-compressor-icon-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-direction: row !important;
+  justify-content: flex-start;
+}
+
+/* Top Controls */
+.wp-image-compressor-top-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  flex-direction: row !important;
+  justify-content: flex-start;
+}
+
+/* Buttons */
+.wp-image-compressor-btn {
+  appearance: none;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.wp-image-compressor-btn:hover {
+  transform: translateY(-1px);
+}
+
+.wp-image-compressor-btn:active {
+  transform: translateY(0);
+}
+
+.wp-image-compressor-btn.primary {
+  background: var(--wp-primary);
+  color: #fff;
+}
+
+.wp-image-compressor-btn.primary:hover {
+  background: #5a00cb;
+}
+
+.wp-image-compressor-btn.secondary {
+  background: var(--wp-secondary);
+  color: #fff;
+}
+
+.wp-image-compressor-btn.secondary:hover {
+  background: #7b39d5;
+}
+
+.wp-image-compressor-btn.ghost {
+  background: #f7f7fb;
+  color: var(--wp-text);
+}
+
+.wp-image-compressor-btn.ghost:hover {
+  background: #efeff7;
+}
+
+.wp-image-compressor-btn.danger {
+  background: #ff4d4f;
+  color: #fff;
+}
+
+.wp-image-compressor-btn.danger:hover {
+  background: #e63939;
+}
+
+.wp-image-compressor-btn.small {
+  padding: 8px 10px;
+  font-size: 12px;
+  border-radius: 10px;
+}
+
+.wp-image-compressor-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Icon Buttons */
+.wp-image-compressor-icon-btn {
+  appearance: none;
+  border: none;
+  background: #f7f7fb;
+  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  font-size: 18px;
+  transition: all 0.2s ease;
+}
+
+.wp-image-compressor-icon-btn:hover {
+  background: #efeff7;
+}
+
+.wp-image-compressor-icon-btn.outline {
+  background: transparent;
+  border: 2px solid var(--wp-border);
+  color: var(--wp-primary);
+}
+
+.wp-image-compressor-icon-btn.outline:hover {
+  border-color: var(--wp-secondary);
+  color: var(--wp-secondary);
+  background: rgba(142, 67, 240, 0.06);
+}
+
+/* Specific top margin for apply-max and reset-tool buttons */
+#wp-apply-max, #wp-reset-tool {
+  margin-top: 20px;
+}
+
+/* Fields */
+.wp-image-compressor-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wp-image-compressor-field input {
+  border: 1px solid var(--wp-border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  min-width: 180px;
+  max-width: 220px;
+  flex: 1 1 auto;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.wp-image-compressor-field input:focus {
+  outline: none;
+  border-color: var(--wp-secondary);
+  box-shadow: 0 0 0 3px rgba(142, 67, 240, 0.15);
+}
+
+.wp-image-compressor-field label {
+  font-weight: 500;
+  color: var(--wp-text);
+  font-size: 14px;
+}
+
+/* Filter Group */
+.wp-image-compressor-filter-group {
+  position: relative;
+}
+
+.wp-image-compressor-filter-menu {
+  position: absolute;
+  top: 48px;
+  left: 0;
+  min-width: 200px;
+  background: #fff;
+  border: 1px solid var(--wp-border);
+  border-radius: 12px;
+  box-shadow: var(--wp-shadow);
+  z-index: 1000;
+  padding: 6px;
+}
+
+.wp-image-compressor-menu-item {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: #fff;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--wp-text);
+  font-family: inherit;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+.wp-image-compressor-menu-item:hover {
+  background: rgba(99, 0, 226, 0.06);
+  color: var(--wp-primary);
+}
+
+/* Empty State */
+.wp-image-compressor-empty-state {
+  display: block;
+  padding: 20px;
+  border: 2px dashed var(--wp-border);
+  border-radius: 12px;
+  color: var(--wp-muted);
+  text-align: center;
+  background: #fafafe;
+  font-size: 16px;
+}
+
+/* Image List */
+.wp-image-compressor-image-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  max-height: 60vh;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+/* Image Card */
+.wp-image-compressor-image-card {
+  position: relative;
+  border: 1px solid var(--wp-border);
+  border-radius: 12px;
+  overflow: visible;
+  background: #fafafe;
+  transition: box-shadow 0.2s ease, outline-color 0.2s ease, border-color 0.2s ease;
+  margin: 5px 2px;
+  padding-bottom: 16px;
+  min-height: 200px;
+}
+
+.wp-image-compressor-image-card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.wp-image-compressor-image-card.selected {
+  border-color: var(--wp-primary);
+  outline: 2px solid var(--wp-primary);
+  box-shadow: 0 0 0 2px rgba(99, 0, 226, 0.15);
+  margin: 5px 2px;
+}
+
+/* Remove Button */
+.wp-image-compressor-image-card .wp-image-compressor-remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  border: none;
+  background: var(--wp-primary) !important;
+  color: #fff !important;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+  z-index: 10;
+}
+
+.wp-image-compressor-image-card .wp-image-compressor-remove:hover {
+  background: #5a00cb !important;
+}
+
+/* Thumbnail */
+.wp-image-compressor-image-card .wp-image-compressor-thumb {
+  display: block;
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  background: #f1f1f7;
+}
+
+/* Image Actions */
+.wp-image-compressor-image-card .wp-image-compressor-image-actions {
+  padding: 12px 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 90px;
+}
+
+.wp-image-compressor-image-card .wp-image-compressor-image-action-btn {
+  width: 100%;
+  height: 38px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #fff;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: visible;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  z-index: 1;
+  font-family: inherit;
+}
+
+.wp-image-compressor-image-card .wp-image-compressor-copy-btn {
+  background: var(--wp-secondary);
+  box-shadow: 0 2px 8px rgba(142, 67, 240, 0.3);
+}
+
+.wp-image-compressor-image-card .wp-image-compressor-copy-btn:hover {
+  background: #7b39d5;
+  box-shadow: 0 4px 16px rgba(142, 67, 240, 0.4);
+}
+
+.wp-image-compressor-image-card .wp-image-compressor-download-btn {
+  background: var(--wp-primary);
+  box-shadow: 0 2px 8px rgba(99, 0, 226, 0.3);
+}
+
+.wp-image-compressor-image-card .wp-image-compressor-download-btn:hover {
+  background: #5a00cb;
+  box-shadow: 0 4px 16px rgba(99, 0, 226, 0.4);
+}
+
+.wp-image-compressor-image-card .wp-image-compressor-image-action-btn:active {
+  transform: translateY(0);
+  outline: none;
+  border: none;
+}
+
+.wp-image-compressor-image-card .wp-image-compressor-image-action-btn:focus {
+  outline: none;
+  box-shadow: none;
+  border: none;
+}
+
+.wp-image-compressor-image-card .wp-image-compressor-image-action-btn svg {
+  flex-shrink: 0;
+}
+
+/* Image Meta */
+.wp-image-compressor-image-card .wp-image-compressor-meta {
+  margin-top: 8px;
+  color: var(--wp-muted);
+  font-size: 12px;
+  padding: 0 12px;
+}
+
+.wp-image-compressor-image-card .wp-image-compressor-meta-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+/* Preview Area */
+.wp-image-compressor-preview-area {
+  border: 1px dashed var(--wp-border);
+  border-radius: 12px;
+  padding: 12px;
+  background: #fdfdff;
+}
+
+/* Compare Viewport */
+.wp-image-compressor-compare-viewport {
+  position: relative;
+  width: 100%;
+  height: 360px;
+  background: #fff;
+  border: 1px solid var(--wp-border);
+  border-radius: 12px;
+  overflow: hidden;
+  contain: paint;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.wp-image-compressor-compare-viewport img {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: auto;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  pointer-events: none;
+}
+
+.wp-image-compressor-overlay {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(0 0 0 var(--split, 50%));
+  will-change: clip-path;
+  pointer-events: none;
+}
+
+.wp-image-compressor-overlay img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.wp-image-compressor-divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  left: calc(var(--split, 50%));
+  transform: translateX(-1.5px);
+  background: linear-gradient(var(--wp-primary), var(--wp-secondary));
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+  will-change: left;
+  pointer-events: none;
+}
+
+.wp-image-compressor-handle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--wp-secondary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  pointer-events: auto;
+  outline: none;
+}
+
+.wp-image-compressor-handle:focus {
+  box-shadow: 0 0 0 3px rgba(142, 67, 240, 0.25);
+}
+
+/* Upload Frame */
+.wp-image-compressor-upload-frame {
+  display: block;
+  width: 100%;
+  height: 160px;
+  margin-top: 12px;
+  border: 2px dashed var(--wp-border);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--wp-muted);
+  background: linear-gradient(180deg, #fafafe, #ffffff);
+  cursor: pointer;
+  font-size: 16px;
+  text-align: center;
+}
+
+.wp-image-compressor-upload-frame:hover {
+  border-color: var(--wp-secondary);
+  color: var(--wp-secondary);
+}
+
+/* Quality Controls */
+.wp-image-compressor-quality-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  justify-content: flex-start;
+}
+
+.wp-image-compressor-quality-controls input[type="range"] {
+  flex: 1;
+  margin: 0;
+  height: 6px;
+  background: linear-gradient(90deg, var(--wp-primary), var(--wp-secondary));
+  border-radius: 999px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.wp-image-compressor-quality-controls input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--wp-secondary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  margin-top: -6px;
+  cursor: pointer;
+}
+
+.wp-image-compressor-quality-controls input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--wp-secondary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+
+.wp-image-compressor-quality-value {
+  width: 64px;
+  border: 1px solid var(--wp-border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  text-align: center;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.wp-image-compressor-quality-value:focus {
+  outline: none;
+  border-color: var(--wp-secondary);
+  box-shadow: 0 0 0 3px rgba(142, 67, 240, 0.15);
+}
+
+/* Meta Row */
+.wp-image-compressor-meta-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.wp-image-compressor-meta {
+  margin-top: 8px;
+  color: var(--wp-muted);
+  font-size: 14px;
+}
+
+/* Stats */
+.wp-image-compressor-stats {
+  margin-top: 8px;
+  color: var(--wp-muted);
+  font-size: 14px;
+}
+
+/* Processing */
+.wp-image-compressor-processing {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.7);
+  animation: wp-fadein 0.15s ease;
+}
+
+@keyframes wp-fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.wp-image-compressor-spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid var(--wp-primary);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: wp-spin 1s linear infinite;
+}
+
+@keyframes wp-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Modal */
+.wp-image-compressor-modal {
+  border: none;
+  border-radius: 16px;
+  padding: 0;
+  box-shadow: var(--wp-shadow);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-height: 90vh;
+  overflow-y: auto;
+  z-index: 10000;
+}
+
+.wp-image-compressor-modal::backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.wp-image-compressor-modal-content {
+  padding: 20px 20px 16px;
+  min-width: 280px;
+}
+
+.wp-image-compressor-modal-content h3 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--wp-text);
+}
+
+.wp-image-compressor-modal-content p {
+  margin: 0 0 16px 0;
+  color: var(--wp-muted);
+  line-height: 1.5;
+}
+
+.wp-image-compressor-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+  .wp-image-compressor-main-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .wp-image-compressor-intro h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .wp-image-compressor-container {
+    padding: 16px;
+  }
+  
+  .wp-image-compressor-intro h1 {
+    font-size: 1.75rem;
+  }
+  
+  .wp-image-compressor-subtitle {
+    font-size: 1rem;
+  }
+  
+  .wp-image-compressor-left-panel,
+  .wp-image-compressor-right-panel {
+    padding: 20px;
+  }
+  
+  .wp-image-compressor-compare-viewport {
+    height: 280px;
+  }
+  
+  .wp-image-compressor-image-list {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+  }
+  
+  .wp-image-compressor-image-card .wp-image-compressor-image-actions {
+    padding: 8px 12px;
+    gap: 6px;
+    min-height: 90px;
+  }
+  
+  .wp-image-compressor-image-card .wp-image-compressor-image-action-btn {
+    height: 32px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .wp-image-compressor-container {
+    padding: 12px;
+  }
+  
+  .wp-image-compressor-intro h1 {
+    font-size: 1.5rem;
+  }
+  
+  .wp-image-compressor-left-panel,
+  .wp-image-compressor-right-panel {
+    padding: 16px;
+  }
+  
+  .wp-image-compressor-image-list {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 6px;
+  }
+  
+  .wp-image-compressor-image-card .wp-image-compressor-image-actions {
+    padding: 6px 8px;
+    gap: 4px;
+    min-height: 80px;
+  }
+  
+  .wp-image-compressor-image-card .wp-image-compressor-image-action-btn {
+    height: 28px;
+    font-size: 10px;
+  }
+  
+  .wp-image-compressor-modal-content {
+    padding: 16px 16px 12px;
+    min-width: 90vw;
+    margin: 20px;
+  }
+  
+  .wp-image-compressor-modal-actions {
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  
+  .wp-image-compressor-modal-actions .wp-image-compressor-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
