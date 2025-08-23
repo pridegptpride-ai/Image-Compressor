@@ -82,21 +82,21 @@ body{
   }
 }
 
-.controls{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;justify-content:center;align-items:flex-start}
+.controls{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;justify-content:flex-start;align-items:center}
 
-/* Ensure controls are centered on all screen sizes - same as top-controls and icon-bar */
+/* Ensure controls are left-justified on all screen sizes */
 @media (min-width: 1200px) {
   .controls { 
-    justify-content: center;
-    align-items: flex-start;
+    justify-content: flex-start;
+    align-items: center;
     gap: 16px 
   }
 }
 
 @media (min-width: 900px) and (max-width: 1199px) {
   .controls { 
-    justify-content: center;
-    align-items: flex-start;
+    justify-content: flex-start;
+    align-items: center;
     gap: 14px 
   }
 }
@@ -333,21 +333,21 @@ body{
 }
 .image-card:hover{box-shadow:0 6px 16px rgba(0,0,0,0.08)}
 
-.top-controls{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px;flex-direction:row !important;justify-content:center}
+.top-controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px;flex-direction:row !important;justify-content:flex-start}
 
-/* Ensure top controls are centered on all screen sizes */
+/* Ensure top controls are left-justified on all screen sizes */
 @media (min-width: 1200px) {
   .top-controls { 
-    justify-content: center;
-    align-items: flex-start;
+    justify-content: flex-start;
+    align-items: center;
     gap: 16px 
   }
 }
 
 @media (min-width: 900px) and (max-width: 1199px) {
   .top-controls { 
-    justify-content: center;
-    align-items: flex-start;
+    justify-content: flex-start;
+    align-items: center;
     gap: 14px 
   }
 }
@@ -359,7 +359,7 @@ body{
     flex-wrap: wrap;
     gap: 6px;
     align-items: center;
-    justify-content: center 
+    justify-content: flex-start 
   }
   
   .field { 
@@ -374,7 +374,7 @@ body{
     flex-wrap: wrap;
     gap: 4px;
     align-items: center;
-    justify-content: center 
+    justify-content: flex-start 
   }
   
   .field { 
@@ -556,13 +556,13 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
 
 /* Mobile full width controls - keeping everything in same line with better compression */
 @media (max-width:700px){
-  .controls{flex-direction:row;flex-wrap:wrap;gap:6px;justify-content:center}
-  .top-controls{flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px;justify-content:center}
+  .controls{flex-direction:row;flex-wrap:wrap;gap:6px;justify-content:flex-start}
+  .top-controls{flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px;justify-content:flex-start}
   .controls .btn, .top-controls .btn, .field input, .quality-controls input, .quality-controls label{width:auto;flex:1 1 auto}
-  .quality-controls{flex-wrap:wrap;flex-direction:row;justify-content:center}
+  .quality-controls{flex-wrap:wrap;flex-direction:row;justify-content:flex-start}
   .quality-controls > *{flex:1 1 auto}
   .quality-controls .icon-btn{flex:0 0 auto}
-  .icon-bar{flex-direction:row !important;flex-wrap:wrap;gap:6px;justify-content:center}
+  .icon-bar{flex-direction:row !important;flex-wrap:wrap;gap:6px;justify-content:flex-start}
   .icon-bar .icon-btn{width:40px;flex:0 0 auto}
   
   .field { 
@@ -574,7 +574,7 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
 /* Enhanced mobile controls - ensuring same line layout with better compression */
 @media (max-width: 480px) {
   .icon-bar { 
-    justify-content: center;
+    justify-content: flex-start;
     gap: 6px;
     flex-direction: row !important;
     flex-wrap: wrap;
@@ -613,21 +613,21 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
   }
 }
 
-.icon-bar{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;flex-direction:row !important;justify-content:center}
+.icon-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex-direction:row !important;justify-content:flex-start}
 
-/* Ensure icon bar is centered on all screen sizes - same as top-controls */
+/* Ensure icon bar is left-justified on all screen sizes */
 @media (min-width: 1200px) {
   .icon-bar { 
-    justify-content: center;
-    align-items: flex-start;
+    justify-content: flex-start;
+    align-items: center;
     gap: 16px 
   }
 }
 
 @media (min-width: 900px) and (max-width: 1199px) {
   .icon-bar { 
-    justify-content: center;
-    align-items: flex-start;
+    justify-content: flex-start;
+    align-items: center;
     gap: 14px 
   }
 }
@@ -638,7 +638,7 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
     flex-direction: row !important;
     flex-wrap: wrap;
     gap: 6px;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center 
   }
 }
@@ -648,7 +648,7 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
     flex-direction: row !important;
     flex-wrap: wrap;
     gap: 4px;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center 
   }
 }
