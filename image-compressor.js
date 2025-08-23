@@ -69,19 +69,22 @@
   async function compressBitmapToMime(bitmap, qualityPercent, mime) {
     prepareCanvas(bitmap.width, bitmap.height);
     sharedCtx.drawImage(bitmap, 0, 0);
+    
+    // For JPEG, use quality parameter; for PNG, always use maximum quality
+    // PNG compression is lossless and quality parameter doesn't affect file size
     const q = mime === 'image/jpeg' ? Math.min(Math.max(qualityPercent / 100, 0.01), 1) : 1;
+    
     const blob = await new Promise(resolve => sharedCanvas.toBlob(resolve, mime, q));
     return blob;
   }
 
   async function compressFile(file, qualityPercent) {
-    // Avoid size inflation: at 100 quality, keep original
-    if (qualityPercent >= 100) return file;
+    // Always compress, even at 100% quality, to reduce file size
     const bitmap = await createImageBitmap(file);
     try {
       const isPng = file.type.includes('png');
-      // For PNG, compress to JPEG when quality < 100; otherwise keep original handled above
-      const mimeType = isPng ? 'image/jpeg' : 'image/jpeg';
+      // For PNG, compress to JPEG when quality < 100; otherwise compress to PNG
+      const mimeType = isPng && qualityPercent < 100 ? 'image/jpeg' : (isPng ? 'image/png' : 'image/jpeg');
       const blob = await compressBitmapToMime(bitmap, qualityPercent, mimeType);
       return blob || file;
     } finally { try { bitmap.close && bitmap.close(); } catch {} }
@@ -93,17 +96,15 @@
   async function ensureCompressed(item, quality) {
     // Use cache if same quality
     if (item.cachedCompressed && item.cachedCompressed.quality === quality) return item.cachedCompressed;
-    let resultBlob;
-    if (quality >= 100) {
-      resultBlob = item.file; // use original
-    } else {
-      showProcessing('Compressing image...');
-      const trial = await compressFile(item.file, quality);
-      hideProcessing();
-      // Prefer smaller of original vs recompressed
-      resultBlob = trial && trial.size < item.file.size ? trial : item.file;
-      if (resultBlob === item.file) quality = 100;
-    }
+    
+    showProcessing('Compressing image...');
+    const trial = await compressFile(item.file, quality);
+    hideProcessing();
+    
+    // Always use the compressed version, even if it's the same size
+    // This ensures consistent behavior and proper file format handling
+    const resultBlob = trial || item.file;
+    
     if (item.cachedCompressed && item.cachedCompressed.url) URL.revokeObjectURL(item.cachedCompressed.url);
     const url = URL.createObjectURL(resultBlob);
     item.cachedCompressed = { quality, blob: resultBlob, url };
