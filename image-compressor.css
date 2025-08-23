@@ -129,6 +129,11 @@ body{
 .btn.danger{background:#ff4d4f;color:#fff}
 .btn.small{padding:8px 10px;font-size:12px;border-radius:10px}
 
+/* Specific top margin for apply-max and reset-tool buttons */
+#apply-max, #reset-tool {
+  margin-top: 20px;
+}
+
 /* Responsive button sizing for touch devices */
 @media (max-width: 768px) {
   .btn { 
