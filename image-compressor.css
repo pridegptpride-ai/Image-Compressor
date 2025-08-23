@@ -48,7 +48,7 @@ body{
 .image-card .remove{position:absolute;top:6px;right:6px;border:none;background:#ff4d4f;color:#fff;border-radius:50%;width:24px;height:24px;cursor:pointer}
 .image-card .remove:hover{background:#e64547}
 .image-card .thumb{display:block;width:100%;height:110px;object-fit:cover;background:#f1f1f7}
-.image-card .image-actions{display:flex;gap:10px;justify-content:space-between;padding:10px 16px}
+.image-card .image-actions{display:flex;gap:10px;justify-content:center;align-items:center;padding:10px 16px}
 .image-card:hover{box-shadow:0 6px 16px rgba(0,0,0,0.08)}
 
 .top-controls{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px}
@@ -125,3 +125,4 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
 .icon-btn.outline{background:transparent;border:2px solid var(--border);color:var(--primary)}
 .icon-btn.outline:hover{border-color:var(--secondary);color:var(--secondary);background:rgba(142,67,240,0.06)}
 .quality-value:focus{outline:none;border-color:var(--secondary);box-shadow:0 0 0 3px rgba(142,67,240,.15)}
+#max-size:focus{outline:none;border-color:var(--secondary)!important;box-shadow:0 0 0 3px rgba(142,67,240,.15)}
