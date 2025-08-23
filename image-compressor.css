@@ -96,24 +96,25 @@ body{
 /* Image actions container - anchored to bottom */
 .image-card .image-actions {
   display: flex;
+  flex-direction: column;
   gap: 8px;
   justify-content: center;   /* center aligned */
-  align-items: stretch;      /* buttons equal height */
+  align-items: stretch;      /* buttons full width */
   padding: 12px 16px;
   margin: 0;
   background: rgba(255, 255, 255, 0.9);
   border-top: 1px solid rgba(99, 0, 226, 0.1);
   margin-top: auto;
   flex-shrink: 0;
-  min-height: 62px;
+  min-height: 100px;
   position: relative;
   z-index: 2;
 }
 
 /* Scoped button styles - won't conflict with global .btn */
 .image-card .image-actions .image-action-btn {
-  flex: 1 1 50%;             /* equal width distribution */
-  height: 38px;              /* fixed equal height */
+  width: 100%;               /* full width */
+  height: 38px;              /* fixed height */
   font-size: 12px;
   font-weight: 600;
   border: none;
@@ -128,7 +129,6 @@ body{
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-width: 0;
   z-index: 1;
 }
 
@@ -185,6 +185,7 @@ body{
   .image-card .image-actions {
     padding: 8px 12px;
     gap: 6px;
+    min-height: 90px;
   }
   
   .image-card .image-actions .image-action-btn {
@@ -207,6 +208,7 @@ body{
   .image-card .image-actions {
     padding: 6px 8px;
     gap: 4px;
+    min-height: 80px;
   }
   
   .image-card .image-actions .image-action-btn {
