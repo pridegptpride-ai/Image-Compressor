@@ -93,26 +93,31 @@ body{
   left: 100%;
 }
 
-.image-card .image-actions .btn.primary {
-  background: var(--primary);
-  color: #fff;
+/* Override any conflicting button styles for image actions */
+.image-card .image-actions .btn.primary,
+.image-card .image-actions .btn.primary:not(:disabled) {
+  background: var(--primary) !important;
+  color: #fff !important;
   box-shadow: 0 2px 8px rgba(99, 0, 226, 0.3);
 }
 
-.image-card .image-actions .btn.primary:hover {
-  background: #5a00cb;
+.image-card .image-actions .btn.primary:hover,
+.image-card .image-actions .btn.primary:not(:disabled):hover {
+  background: #5a00cb !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(99, 0, 226, 0.4);
 }
 
-.image-card .image-actions .btn.secondary {
-  background: var(--secondary);
-  color: #fff;
+.image-card .image-actions .btn.secondary,
+.image-card .image-actions .btn.secondary:not(:disabled) {
+  background: var(--secondary) !important;
+  color: #fff !important;
   box-shadow: 0 2px 8px rgba(142, 67, 240, 0.3);
 }
 
-.image-card .image-actions .btn.secondary:hover {
-  background: #7b39d5;
+.image-card .image-actions .btn.secondary:hover,
+.image-card .image-actions .btn.secondary:not(:disabled):hover {
+  background: #7b39d5 !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(142, 67, 240, 0.4);
 }
