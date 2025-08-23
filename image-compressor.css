@@ -82,12 +82,13 @@ body{
   }
 }
 
-.controls{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;justify-content:center;align-items:center}
+.controls{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;justify-content:center;align-items:flex-start}
 
 /* Ensure controls are centered on all screen sizes - same as top-controls and icon-bar */
 @media (min-width: 1200px) {
   .controls { 
     justify-content: center;
+    align-items: flex-start;
     gap: 16px 
   }
 }
@@ -95,6 +96,7 @@ body{
 @media (min-width: 900px) and (max-width: 1199px) {
   .controls { 
     justify-content: center;
+    align-items: flex-start;
     gap: 14px 
   }
 }
@@ -103,14 +105,16 @@ body{
 @media (max-width: 768px) {
   .controls { 
     gap: 8px;
-    margin-bottom: 8px 
+    margin-bottom: 8px;
+    align-items: center 
   }
 }
 
 @media (max-width: 480px) {
   .controls { 
     gap: 6px;
-    margin-bottom: 6px 
+    margin-bottom: 6px;
+    align-items: center 
   }
 }
 .btn{appearance:none;border:none;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer;transition:transform .1s ease, box-shadow .2s ease, background .2s ease;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
@@ -329,12 +333,13 @@ body{
 }
 .image-card:hover{box-shadow:0 6px 16px rgba(0,0,0,0.08)}
 
-.top-controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px;flex-direction:row !important;justify-content:center}
+.top-controls{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px;flex-direction:row !important;justify-content:center}
 
 /* Ensure top controls are centered on all screen sizes */
 @media (min-width: 1200px) {
   .top-controls { 
     justify-content: center;
+    align-items: flex-start;
     gap: 16px 
   }
 }
@@ -342,6 +347,7 @@ body{
 @media (min-width: 900px) and (max-width: 1199px) {
   .top-controls { 
     justify-content: center;
+    align-items: flex-start;
     gap: 14px 
   }
 }
@@ -426,12 +432,13 @@ body{
 
 .meta-row{display:flex;justify-content:space-between;gap:12px;margin-top:8px}
 
-.quality-controls{display:flex;align-items:center;gap:12px;margin-top:12px;justify-content:center}
+.quality-controls{display:flex;align-items:flex-start;gap:12px;margin-top:12px;justify-content:center}
 
 /* Ensure quality controls are centered on all screen sizes - same as other control sections */
 @media (min-width: 1200px) {
   .quality-controls { 
     justify-content: center;
+    align-items: flex-start;
     gap: 16px 
   }
 }
@@ -439,7 +446,8 @@ body{
 @media (min-width: 900px) and (max-width: 1199px) {
   .quality-controls { 
     justify-content: center;
-    gap: 14px 
+    align-items: flex-start;
+    gap: 16px 
   }
 }
 
@@ -449,7 +457,8 @@ body{
     gap: 8px;
     margin-top: 8px;
     flex-wrap: wrap;
-    flex-direction: row !important 
+    flex-direction: row !important;
+    align-items: center 
   }
 }
 
@@ -604,12 +613,13 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
   }
 }
 
-.icon-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex-direction:row !important;justify-content:center}
+.icon-bar{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;flex-direction:row !important;justify-content:center}
 
 /* Ensure icon bar is centered on all screen sizes - same as top-controls */
 @media (min-width: 1200px) {
   .icon-bar { 
     justify-content: center;
+    align-items: flex-start;
     gap: 16px 
   }
 }
@@ -617,6 +627,7 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
 @media (min-width: 900px) and (max-width: 1199px) {
   .icon-bar { 
     justify-content: center;
+    align-items: flex-start;
     gap: 14px 
   }
 }
@@ -627,7 +638,8 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
     flex-direction: row !important;
     flex-wrap: wrap;
     gap: 6px;
-    justify-content: flex-start 
+    justify-content: center;
+    align-items: center 
   }
 }
 
@@ -636,7 +648,8 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
     flex-direction: row !important;
     flex-wrap: wrap;
     gap: 4px;
-    justify-content: center 
+    justify-content: center;
+    align-items: center 
   }
 }
 .icon-btn{appearance:none;border:none;background:#f7f7fb;border-radius:12px;width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.06);font-size:18px}
