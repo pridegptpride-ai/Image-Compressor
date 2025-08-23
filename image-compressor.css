@@ -130,5 +130,3 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
 /* Delete/Remove buttons use full dark red */
 .btn.danger{background:#8B0000;color:#fff;border-color:#8B0000}
 .btn.danger:hover{background:#7a0000}
-.image-card .remove{background:#8B0000;color:#fff}
-.image-card .remove:hover{background:#7a0000}
