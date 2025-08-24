@@ -9,15 +9,12 @@
   <!-- LEFT: Upload & List -->
   <section class="wp-left-panel">
     <div class="wp-controls wp-icon-bar">
-      <button id="wp-icon-add" class="wp-icon-btn wp-outline" type="button" title="Add Images" aria-label="Add Images">
+      <button id="wp-icon-add" class="wp-icon-btn wp-primary" type="button" title="Add Images" aria-label="Add Images">
         Add
       </button>
       <input id="wp-file-input" type="file" accept="image/*" multiple hidden />
       <button id="wp-icon-delete-all" class="wp-btn wp-danger wp-small" type="button" title="Delete All" aria-label="Delete All" disabled>
         Delete All
-      </button>
-      <button id="wp-compress-all" class="wp-btn wp-primary wp-small" type="button" title="Compress All" aria-label="Compress All">
-        Compress All
       </button>
       <div class="wp-filter-group">
         <button id="wp-icon-filter" class="wp-icon-btn wp-outline" type="button" title="Filter" aria-haspopup="menu" aria-expanded="false" aria-controls="wp-filter-menu" aria-label="Filter">
@@ -30,7 +27,12 @@
           <div class="wp-menu-item" data-sort="small">Smallest First</div>
         </div>
       </div>
-      <button id="wp-download-all" class="wp-btn wp-secondary wp-small" type="button" title="Download All" aria-label="Download All" disabled>Download All</button>
+      <button id="wp-compress-all" class="wp-btn wp-primary wp-small" type="button" title="Compress All" aria-label="Compress All" disabled>
+        Compress All
+      </button>
+      <button id="wp-download-all" class="wp-btn wp-secondary wp-small" type="button" title="Download All" aria-label="Download All" disabled>
+        Download All
+      </button>
     </div>
 
     <div id="wp-empty-state" class="wp-empty-state">Image list is empty. Kindly add images.</div>
@@ -87,7 +89,26 @@
   </section>
 </main>
 
-<!-- Modal -->
+<!-- Compress All Modal -->
+<dialog id="wp-compress-all-modal" class="wp-modal">
+  <div class="wp-modal-content">
+    <h3>Compress All Images</h3>
+    <p>Select the compression quality for all images:</p>
+    
+    <div class="wp-quality-selection">
+      <label for="wp-compress-quality-range">Quality: <span id="wp-compress-quality-percentage">50%</span></label>
+      <input id="wp-compress-quality-range" type="range" min="1" max="100" value="50" />
+      <input id="wp-compress-quality-value" class="wp-quality-value" type="number" min="1" max="100" value="50" />
+    </div>
+    
+    <div class="wp-modal-actions">
+      <button id="wp-cancel-compress" class="wp-btn wp-outline" type="button">Cancel</button>
+      <button id="wp-confirm-compress" class="wp-btn wp-primary" type="button">Compress All</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Confirm Modal -->
 <dialog id="wp-confirm-modal" class="wp-modal">
   <div class="wp-modal-content">
     <h3>Delete all images?</h3>

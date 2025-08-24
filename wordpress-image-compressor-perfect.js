@@ -176,16 +176,16 @@
     }
 
     // Helper function to compress all images at current quality
-    async function compressAllImages() {
-      if (!qualityRange) return;
+    async function compressAllImages(quality = null) {
+      if (!qualityRange && !quality) return;
       
-      const quality = parseInt(qualityRange.value);
+      const compressionQuality = quality || parseInt(qualityRange.value);
       showProcessing('Compressing all images...');
       
       for (let i = 0; i < images.length; i++) {
         const item = images[i];
         try {
-          await ensureCompressed(item, quality);
+          await ensureCompressed(item, compressionQuality);
           // Update progress
           const progress = Math.round(((i + 1) / images.length) * 100);
           showProcessing(`Compressing all images... ${progress}%`);
@@ -199,7 +199,7 @@
       // Refresh all image card statuses after bulk compression
       refreshAllImageCardStatuses();
       
-      toast(`Compressed ${images.length} image(s) at ${quality}% quality`);
+      toast(`Compressed ${images.length} image(s) at ${compressionQuality}% quality`);
     }
 
     // Helper function to update all image card statuses
@@ -389,15 +389,29 @@
     function setEmptyState() { 
       const has = images.length > 0; 
       if (emptyState) emptyState.style.display = has ? 'none' : ''; 
-      if (deleteAllBtn) deleteAllBtn.disabled = !has; 
-      if (deleteAllBtn) deleteAllBtn.style.display = has ? '' : 'none'; 
-      if (downloadAllBtn) downloadAllBtn.disabled = !has; 
+      
+      // Show/hide buttons based on image upload status
+      if (deleteAllBtn) {
+        deleteAllBtn.disabled = !has; 
+        deleteAllBtn.style.display = has ? '' : 'none'; 
+      }
+      
+      if (downloadAllBtn) {
+        downloadAllBtn.disabled = !has; 
+        downloadAllBtn.style.display = has ? '' : 'none';
+      }
       
       // Enable/disable compress all button
       const compressAllBtn = document.getElementById('wp-compress-all');
       if (compressAllBtn) {
         compressAllBtn.disabled = !has;
         compressAllBtn.style.display = has ? '' : 'none';
+      }
+      
+      // Show/hide filter button based on image count
+      const filterButton = document.getElementById('wp-icon-filter');
+      if (filterButton) {
+        filterButton.style.display = has ? '' : 'none';
       }
     }
     
@@ -863,8 +877,53 @@
           toast('No images to compress');
           return;
         }
-        compressAllImages();
+        
+        // Show the compress all modal
+        const compressModal = document.getElementById('wp-compress-all-modal');
+        if (compressModal) {
+          compressModal.showModal();
+        }
       });
+    }
+
+    // Compress all modal event listeners
+    const compressModal = document.getElementById('wp-compress-all-modal');
+    const compressQualityRange = document.getElementById('wp-compress-quality-range');
+    const compressQualityValue = document.getElementById('wp-compress-quality-value');
+    const compressQualityPercentage = document.getElementById('wp-compress-quality-percentage');
+    const cancelCompressBtn = document.getElementById('wp-cancel-compress');
+    const confirmCompressBtn = document.getElementById('wp-confirm-compress');
+
+    if (compressModal && compressQualityRange && compressQualityValue && compressQualityPercentage) {
+      // Sync quality inputs in compress modal
+      compressQualityRange.addEventListener('input', (e) => {
+        const value = e.target.value;
+        compressQualityValue.value = value;
+        compressQualityPercentage.textContent = value + '%';
+      });
+
+      compressQualityValue.addEventListener('input', () => {
+        if (!compressQualityValue.value) return;
+        const value = compressQualityValue.value;
+        compressQualityRange.value = value;
+        compressQualityPercentage.textContent = value + '%';
+      });
+
+      // Cancel button
+      if (cancelCompressBtn) {
+        cancelCompressBtn.addEventListener('click', () => {
+          compressModal.close();
+        });
+      }
+
+      // Confirm button
+      if (confirmCompressBtn) {
+        confirmCompressBtn.addEventListener('click', async () => {
+          const quality = parseInt(compressQualityRange.value);
+          compressModal.close();
+          await compressAllImages(quality);
+        });
+      }
     }
 
     if (qualityRange) {

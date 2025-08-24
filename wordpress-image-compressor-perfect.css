@@ -314,6 +314,30 @@
   box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.25);
 }
 
+/* Ensure reset tool button has dark red background */
+#wp-reset-tool {
+  background: #8B0000 !important;
+  color: #fff !important;
+  border-color: #8B0000 !important;
+}
+
+#wp-reset-tool:hover {
+  background: #8B0000 !important;
+  color: #fff !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+#wp-reset-tool:active {
+  background: #8B0000 !important;
+  color: #fff !important;
+}
+
+#wp-reset-tool:focus {
+  background: #8B0000 !important;
+  color: #fff !important;
+  box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.25);
+}
+
 .wp-btn.small {
   padding: 8px 10px;
   font-size: 12px;
@@ -1011,6 +1035,11 @@
     padding: 16px 16px 12px;
     min-width: auto;
   }
+  
+  .wp-quality-selection {
+    margin: 16px 0;
+    padding: 12px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1035,6 +1064,17 @@
     flex: 1; /* Make buttons equal width */
     min-width: 120px; /* Ensure minimum button width */
     justify-content: center;
+  }
+  
+  .wp-quality-selection {
+    margin: 12px 0;
+    padding: 10px;
+  }
+  
+  .wp-quality-selection input[type="number"] {
+    width: 70px;
+    padding: 6px;
+    font-size: 13px;
   }
 }
 
@@ -1293,4 +1333,35 @@
   min-width: 200px !important;
   text-align: center !important;
   pointer-events: none !important;
+}
+
+/* Quality Selection in Compress All Modal */
+.wp-quality-selection {
+  margin: 20px 0;
+  padding: 16px;
+  background: rgba(99, 0, 226, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(99, 0, 226, 0.1);
+}
+
+.wp-quality-selection label {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.wp-quality-selection input[type="range"] {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.wp-quality-selection input[type="number"] {
+  width: 80px;
+  text-align: center;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
 }
