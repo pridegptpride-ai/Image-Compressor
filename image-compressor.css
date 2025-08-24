@@ -17,16 +17,106 @@ body{
   -webkit-tap-highlight-color:transparent;
 }
 .container{max-width:1200px;margin:0 auto;padding:24px}
+
+/* Responsive container padding */
+@media (max-width: 768px) {
+  .container { padding: 16px }
+}
+
+@media (max-width: 480px) {
+  .container { padding: 12px }
+}
 .intro{text-align:center;padding-top:24px}
 .intro h1{margin:0 0 8px;font-size:28px;line-height:1.2}
 .subtitle{margin:0 0 12px;color:var(--muted)}
 
+/* Responsive typography */
+@media (max-width: 768px) {
+  .intro h1 { font-size: 24px }
+  .subtitle { font-size: 14px }
+  .intro { padding-top: 16px }
+}
+
+@media (max-width: 480px) {
+  .intro h1 { font-size: 20px }
+  .subtitle { font-size: 13px }
+  .intro { padding-top: 12px }
+}
+
 .main-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:24px;align-items:start}
-@media (max-width: 900px){.main-grid{grid-template-columns:1fr}}
+
+/* Enhanced responsive grid */
+@media (max-width: 900px) {
+  .main-grid { 
+    grid-template-columns: 1fr;
+    gap: 16px 
+  }
+}
+
+@media (max-width: 768px) {
+  .main-grid { 
+    gap: 12px 
+  }
+}
+
+@media (max-width: 480px) {
+  .main-grid { 
+    gap: 8px 
+  }
+}
 
 .left-panel,.right-panel{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:16px}
 
-.controls{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+/* Responsive panel padding */
+@media (max-width: 768px) {
+  .left-panel, .right-panel { 
+    padding: 12px;
+    border-radius: 12px 
+  }
+}
+
+@media (max-width: 480px) {
+  .left-panel, .right-panel { 
+    padding: 8px;
+    border-radius: 8px 
+  }
+}
+
+.controls{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;justify-content:flex-start;align-items:center}
+
+/* Ensure controls are left-justified on all screen sizes */
+@media (min-width: 1200px) {
+  .controls { 
+    justify-content: flex-start;
+    align-items: center;
+    gap: 16px 
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1199px) {
+  .controls { 
+    justify-content: flex-start;
+    align-items: center;
+    gap: 14px 
+  }
+}
+
+/* Responsive controls */
+@media (max-width: 768px) {
+  .controls { 
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center 
+  }
+}
+
+@media (max-width: 480px) {
+  .controls { 
+    gap: 6px;
+    margin-bottom: 6px;
+    align-items: center 
+  }
+}
 .btn{appearance:none;border:none;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer;transition:transform .1s ease, box-shadow .2s ease, background .2s ease;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
 .btn:hover{transform:translateY(-1px)}
 .btn:active{transform:translateY(0)}
@@ -38,22 +128,288 @@ body{
 .btn.ghost:hover{background:#efeff7}
 .btn.danger{background:#ff4d4f;color:#fff}
 .btn.small{padding:8px 10px;font-size:12px;border-radius:10px}
+
+/* Specific top margin for apply-max and reset-tool buttons */
+#apply-max, #reset-tool {
+  margin-top: 20px;
+}
+
+/* Responsive button sizing for touch devices */
+@media (max-width: 768px) {
+  .btn { 
+    min-height: 44px;  /* Touch-friendly minimum height */
+    padding: 12px 16px 
+  }
+  
+  .btn.small { 
+    min-height: 40px;
+    padding: 10px 12px 
+  }
+}
+
+@media (max-width: 480px) {
+  .btn { 
+    min-height: 48px;  /* Even more touch-friendly */
+    padding: 14px 18px 
+  }
+  
+  .btn.small { 
+    min-height: 44px;
+    padding: 12px 14px 
+  }
+}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
 
 .empty-state{display:block;padding:10px 12px;border:1px dashed var(--border);border-radius:12px;color:var(--muted);margin-bottom:12px;background:#fafafe}
 
 .image-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;max-height:60vh;overflow:auto;padding-right:4px}
-.image-card{position:relative;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fafafe;transition:box-shadow .2s ease, outline-color .2s ease;margin:5px 2px}
+.image-card{
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fafafe;
+  transition: box-shadow .2s ease, outline-color .2s ease;
+  margin: 5px 2px;
+  padding-bottom: 16px;
+  min-height: 200px;
+}
 .image-card.selected{border-color:var(--primary);outline:2px solid var(--primary);box-shadow:0 0 0 2px rgba(99,0,226,.15);margin:5px 2px}
-.image-card .remove{position:absolute;top:6px;right:6px;border:none;background:#ff4d4f;color:#fff;border-radius:50%;width:24px;height:24px;cursor:pointer}
-.image-card .remove:hover{background:#e64547}
+.image-card .remove{
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  border: none;
+  background: var(--primary) !important;
+  color: #fff !important;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+.image-card .remove:hover{background:#5a00cb !important}
 .image-card .thumb{display:block;width:100%;height:110px;object-fit:cover;background:#f1f1f7}
-.image-card .image-actions{display:flex;gap:10px;justify-content:center;align-items:center;padding:10px 16px}
+/* Image card layout - scoped to prevent global conflicts */
+.image-card {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: visible;
+  background: #fafafe;
+  transition: box-shadow .2s ease, outline-color .2s ease, border-color .2s ease;
+  margin: 5px 2px;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+}
+
+.image-card.selected {
+  border-color: var(--primary);
+  outline: 2px solid var(--primary);
+  box-shadow: 0 0 0 2px rgba(99, 0, 226, 0.15);
+}
+
+/* Image actions container - anchored to bottom */
+.image-card .image-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;   /* center aligned */
+  align-items: stretch;      /* buttons full width */
+  padding: 12px 16px;
+  margin: 0;
+  background: rgba(255, 255, 255, 0.9);
+  border-top: 1px solid rgba(99, 0, 226, 0.1);
+  margin-top: auto;
+  flex-shrink: 0;
+  min-height: 100px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Scoped button styles - won't conflict with global .btn */
+.image-card .image-actions .image-action-btn {
+  width: 100%;               /* full width */
+  height: 38px;              /* fixed height */
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #fff;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: visible;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  z-index: 1;
+}
+
+/* Shimmer effect removed */
+
+/* Copy button specific styles */
+.image-card .image-actions .copy-btn {
+  background: var(--secondary);
+  box-shadow: 0 2px 8px rgba(142, 67, 240, 0.3);
+}
+
+.image-card .image-actions .copy-btn:hover {
+  background: #7b39d5;
+  box-shadow: 0 4px 16px rgba(142, 67, 240, 0.4);
+}
+
+/* Download button specific styles */
+.image-card .image-actions .download-btn {
+  background: var(--primary);
+  box-shadow: 0 2px 8px rgba(99, 0, 226, 0.3);
+}
+
+.image-card .image-actions .download-btn:hover {
+  background: #5a00cb;
+  box-shadow: 0 4px 16px rgba(99, 0, 226, 0.4);
+}
+
+/* Button active states - removed border */
+.image-card .image-actions .image-action-btn:active {
+  transform: translateY(0);
+  outline: none;
+  border: none;
+}
+
+/* Button focus states - removed border */
+.image-card .image-actions .image-action-btn:focus {
+  outline: none;
+  box-shadow: none;
+  border: none;
+}
+
+/* Icon animations removed */
+.image-card .image-actions .image-action-btn svg {
+  flex-shrink: 0;
+}
+
+/* Responsive design for mobile */
+@media (max-width: 768px) {
+  .image-list {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+  }
+  
+  .image-card .image-actions {
+    padding: 8px 12px;
+    gap: 6px;
+    min-height: 90px;
+  }
+  
+  .image-card .image-actions .image-action-btn {
+    height: 32px;
+    font-size: 11px;
+  }
+  
+  .image-card .image-actions .image-action-btn svg {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .image-list {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 6px;
+  }
+  
+  .image-card .image-actions {
+    padding: 6px 8px;
+    gap: 4px;
+    min-height: 80px;
+  }
+  
+  .image-card .image-actions .image-action-btn {
+    height: 28px;
+    font-size: 10px;
+  }
+}
 .image-card:hover{box-shadow:0 6px 16px rgba(0,0,0,0.08)}
 
-.top-controls{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px}
+.top-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;flex-direction:row !important;justify-content:flex-start}
+
+/* Ensure top controls are left-justified on all screen sizes */
+@media (min-width: 1200px) {
+  .top-controls { 
+    justify-content: flex-start;
+    align-items: center;
+    gap: 8px 
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1199px) {
+  .top-controls { 
+    justify-content: flex-start;
+    align-items: center;
+    gap: 8px 
+  }
+}
+
+/* Ensure top controls always stay in same line with better compression */
+@media (max-width: 768px) {
+  .top-controls { 
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start 
+  }
+  
+  .field { 
+    flex: 1 1 auto;
+    min-width: 0 
+  }
+}
+
+@media (max-width: 480px) {
+  .top-controls { 
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start 
+  }
+  
+  .field { 
+    flex: 1 1 auto;
+    min-width: 0 
+  }
+}
 .field{display:flex;flex-direction:column;gap:6px}
-.field input{border:1px solid var(--border);border-radius:12px;padding:10px 12px;min-width:220px}
+.field input{border:1px solid var(--border);border-radius:12px;padding:10px 12px;min-width:180px;max-width:220px;flex:1 1 auto}
+
+/* Responsive field inputs - better compression */
+@media (max-width: 768px) {
+  .field input { 
+    min-width: 140px;
+    max-width: 160px;
+    padding: 8px 10px;
+    font-size: 14px;
+    flex: 1 1 auto 
+  }
+}
+
+@media (max-width: 480px) {
+  .field input { 
+    min-width: 100px;
+    max-width: 120px;
+    padding: 6px 8px;
+    font-size: 13px;
+    flex: 1 1 auto 
+  }
+}
 
 .preview-area{border:1px dashed var(--border);border-radius:12px;padding:12px;background:#fdfdff}
 /* Single compare viewport */
@@ -81,7 +437,45 @@ body{
 
 .meta-row{display:flex;justify-content:space-between;gap:12px;margin-top:8px}
 
-.quality-controls{display:flex;align-items:center;gap:12px;margin-top:12px}
+.quality-controls{display:flex;align-items:flex-start;gap:12px;margin-top:12px;justify-content:center}
+
+/* Ensure quality controls are centered on all screen sizes - same as other control sections */
+@media (min-width: 1200px) {
+  .quality-controls { 
+    justify-content: center;
+    align-items: flex-start;
+    gap: 16px 
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1199px) {
+  .quality-controls { 
+    justify-content: center;
+    align-items: flex-start;
+    gap: 16px 
+  }
+}
+
+/* Responsive quality controls - keeping in same line */
+@media (max-width: 768px) {
+  .quality-controls { 
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+    flex-direction: row !important;
+    align-items: center 
+  }
+}
+
+@media (max-width: 480px) {
+  .quality-controls { 
+    gap: 6px;
+    margin-top: 6px;
+    flex-direction: row !important;
+    align-items: center;
+    flex-wrap: wrap 
+  }
+}
 .quality-controls input[type="range"]{flex:1;margin:0}
 
 /* Range input theme and thumb alignment */
@@ -93,25 +487,194 @@ input[type=range]::-moz-range-track{height:6px;background:linear-gradient(90deg,
 
 .stats,.meta{margin-top:8px;color:var(--muted);font-size:14px}
 
-.modal::backdrop{background:rgba(0,0,0,0.45)}
-.modal{border:none;border-radius:16px;padding:0;box-shadow:var(--shadow)}
-.modal-content{padding:20px 20px 16px;min-width:280px}
-.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
-
-/* Mobile full width controls */
-@media (max-width:700px){
-  .controls{flex-direction:column}
-  .top-controls{flex-direction:column;align-items:stretch}
-  .controls .btn, .top-controls .btn, .field input, .quality-controls input, .quality-controls label{width:100%}
-  .quality-controls{flex-wrap:wrap}
-  .quality-controls > *{flex:1 1 100%}
-  .quality-controls .icon-btn{flex:0 0 auto}
-  .icon-bar{flex-direction:row !important;flex-wrap:wrap}
-  .icon-bar .icon-btn{width:40px;flex:0 0 auto}
+/* Responsive stats and meta */
+@media (max-width: 768px) {
+  .stats, .meta { 
+    font-size: 13px;
+    margin-top: 6px 
+  }
+  
+  .meta-row { 
+    flex-direction: column;
+    gap: 4px 
+  }
 }
 
-.icon-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+@media (max-width: 480px) {
+  .stats, .meta { 
+    font-size: 12px;
+    margin-top: 4px 
+  }
+}
+
+.modal::backdrop{background:rgba(0,0,0,0.45)}
+.modal{border:none;border-radius:16px;padding:0;box-shadow:var(--shadow);position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);max-height:90vh;overflow-y:auto}
+.modal-content{padding:20px 20px 16px;min-width:280px}
+
+/* Responsive modal - fixed positioning for small screens */
+@media (max-width: 768px) {
+  .modal { 
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-height: 90vh;
+    overflow-y: auto;
+    width: 90vw;
+    max-width: 400px
+  }
+  
+  .modal-content { 
+    padding: 16px 16px 12px;
+    min-width: auto;
+    margin: 0 
+  }
+}
+
+@media (max-width: 480px) {
+  .modal { 
+    width: 95vw;
+    max-width: 350px;
+    max-height: 85vh
+  }
+  
+  .modal-content { 
+    padding: 12px 12px 8px;
+    margin: 0 
+  }
+}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+
+/* Responsive modal actions */
+@media (max-width: 480px) {
+  .modal-actions { 
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px 
+  }
+  
+  .modal-actions .btn { 
+    width: 100%;
+    justify-content: center 
+  }
+}
+
+/* Mobile full width controls - keeping everything in same line with better compression */
+@media (max-width:700px){
+  .controls{flex-direction:row;flex-wrap:wrap;gap:8px;justify-content:flex-start}
+  .top-controls{flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px;justify-content:flex-start}
+  .controls .btn, .top-controls .btn, .field input, .quality-controls input, .quality-controls label{width:auto;flex:1 1 auto}
+  .quality-controls{flex-wrap:wrap;flex-direction:row;justify-content:flex-start}
+  .quality-controls > *{flex:1 1 auto}
+  .quality-controls .icon-btn{flex:0 0 auto}
+  .icon-bar{flex-direction:row !important;flex-wrap:wrap;gap:8px;justify-content:flex-start}
+  .icon-bar .icon-btn{width:40px;flex:0 0 auto}
+  
+  .field { 
+    flex: 1 1 auto;
+    min-width: 0 
+  }
+}
+
+/* Enhanced mobile controls - ensuring same line layout with better compression */
+@media (max-width: 480px) {
+  .icon-bar { 
+    justify-content: flex-start;
+    gap: 6px;
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    align-items: center 
+  }
+  
+  .icon-bar .icon-btn { 
+    width: 44px;
+    height: 44px;
+    flex: 0 0 auto 
+  }
+  
+  .filter-menu { 
+    min-width: 160px;
+    left: -70px;  /* Center the filter menu */
+    z-index: 1000 
+  }
+  
+  .controls { 
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    gap: 4px 
+  }
+  
+  .top-controls { 
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+    justify-content: center 
+  }
+  
+  .field { 
+    flex: 1 1 auto;
+    min-width: 0 
+  }
+}
+
+.icon-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex-direction:row !important;justify-content:flex-start}
+
+/* Ensure icon bar is left-justified on all screen sizes */
+@media (min-width: 1200px) {
+  .icon-bar { 
+    justify-content: flex-start;
+    align-items: center;
+    gap: 8px 
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1199px) {
+  .icon-bar { 
+    justify-content: flex-start;
+    align-items: center;
+    gap: 8px 
+  }
+}
+
+/* Ensure icon bar always stays in same line with better compression */
+@media (max-width: 768px) {
+  .icon-bar { 
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-start;
+    align-items: center 
+  }
+}
+
+@media (max-width: 480px) {
+  .icon-bar { 
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-start;
+    align-items: center 
+  }
+}
 .icon-btn{appearance:none;border:none;background:#f7f7fb;border-radius:12px;width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.06);font-size:18px}
+
+/* Responsive icon buttons for touch devices */
+@media (max-width: 768px) {
+  .icon-btn { 
+    width: 44px;  /* Touch-friendly minimum size */
+    height: 44px;
+    border-radius: 10px 
+  }
+}
+
+@media (max-width: 480px) {
+  .icon-btn { 
+    width: 48px;  /* Even more touch-friendly */
+    height: 48px;
+    border-radius: 8px 
+  }
+}
 .icon-btn:hover{background:#efeff7}
 .filter-group{position:relative}
 .filter-menu{position:absolute;top:48px;left:0;min-width:200px;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);z-index:10;padding:6px}
