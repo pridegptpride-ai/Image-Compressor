@@ -223,6 +223,10 @@
           if (jpegBlob && jpegBlob.size < file.size) {
             return jpegBlob;
           }
+          
+          // If no compression achieved, return original but processed through canvas
+          const processedBlob = await compressBitmapToMime(bitmap, 100, isPng ? 'image/png' : 'image/jpeg');
+          return processedBlob;
         }
         
         // Regular compression based on quality
