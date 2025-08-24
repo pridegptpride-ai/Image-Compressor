@@ -10,15 +10,21 @@
   <section class="wp-left-panel">
     <div class="wp-controls wp-icon-bar">
       <button id="wp-icon-add" class="wp-icon-btn wp-outline" type="button" title="Add Images" aria-label="Add Images">
-        +
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
       </button>
       <input id="wp-file-input" type="file" accept="image/*" multiple hidden />
       <button id="wp-icon-delete-all" class="wp-icon-btn wp-outline" type="button" title="Delete All" aria-label="Delete All" disabled>
-        🗑️
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 6h18M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+        </svg>
       </button>
       <div class="wp-filter-group">
         <button id="wp-icon-filter" class="wp-icon-btn wp-outline" type="button" title="Filter" aria-haspopup="menu" aria-expanded="false" aria-controls="wp-filter-menu" aria-label="Filter">
-          ⚙️
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M22 3H2l8 9v7l4 2v-9l8-9z"/>
+          </svg>
         </button>
         <div id="wp-filter-menu" class="wp-filter-menu" role="menu" hidden>
           <button class="wp-menu-item" role="menuitem" data-sort="az">Name A → Z</button>
@@ -43,7 +49,10 @@
       </div>
       <button id="wp-apply-max" class="wp-btn wp-secondary" type="button">Apply</button>
       <button id="wp-reset-tool" class="wp-icon-btn wp-outline" type="button" title="Reset" aria-label="Reset tool">
-        🔄
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12a9 9 0 1 1-9-9 9 9 0 0 1 9 9z"/>
+          <path d="M3 12h6M12 3v6"/>
+        </svg>
       </button>
     </div>
 
@@ -99,14 +108,26 @@
 <template id="wp-image-card-template">
   <div class="wp-image-card" data-id="">
     <button class="wp-remove" title="Remove" aria-label="Remove">
-      ✕
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
     </button>
     <img class="wp-thumb" alt="thumbnail" />
     <div class="wp-image-actions">
       <button class="wp-image-action-btn wp-copy-btn" data-action="copy" type="button">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
         Copy
       </button>
       <button class="wp-image-action-btn wp-download-btn" data-action="download" type="button">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7,10 12,15 17,10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
         Download
       </button>
     </div>

@@ -113,6 +113,24 @@
       return `${reduction} • ${original} → ${compressed}`;
     }
 
+    // Smooth stats animation
+    function animateStats(element, startText, endText, duration = 800) {
+      if (!element) return;
+      
+      element.textContent = startText;
+      element.style.opacity = '0.7';
+      
+      setTimeout(() => {
+        element.textContent = endText;
+        element.style.opacity = '1';
+        element.style.transform = 'scale(1.05)';
+        
+        setTimeout(() => {
+          element.style.transform = 'scale(1)';
+        }, 150);
+      }, 100);
+    }
+
     function toast(message) { 
       const div = document.createElement('div'); 
       div.textContent = message; 
@@ -120,7 +138,7 @@
       div.style.left = '50%'; 
       div.style.bottom = '24px'; 
       div.style.transform = 'translateX(-50%)'; 
-      div.style.background = 'linear-gradient(90deg, #6300e2, #8e43f0)'; 
+      div.style.background = 'linear-gradient(90deg, #6300E2, #8E43F0)'; 
       div.style.color = '#fff'; 
       div.style.padding = '10px 14px'; 
       div.style.borderRadius = '12px'; 
@@ -156,6 +174,20 @@
 
     function getSelected() { 
       return images.find(i => i.id === selectedId); 
+    }
+
+    // Processing functions
+    function showProcessing(message) {
+      if (processingEl && processingText) {
+        processingText.textContent = message;
+        processingEl.style.display = 'flex';
+      }
+    }
+
+    function hideProcessing() {
+      if (processingEl) {
+        processingEl.style.display = 'none';
+      }
     }
 
     async function compressBitmapToMime(bitmap, qualityPercent, mime) {
@@ -259,14 +291,24 @@
       if (baseImg) baseImg.src = item.url;
       if (originalMeta) originalMeta.textContent = formatBytes(item.originalBytes);
       
+      // Show processing
+      showProcessing('Compressing...');
+      
       // Always compress the image to show stats
       const quality = qualityRange ? parseInt(qualityRange.value) : 100;
       const compressed = await ensureCompressed(item, quality);
       
       if (overlayImg) overlayImg.src = item.cachedCompressed.url;
       if (compressedMeta) compressedMeta.textContent = formatBytes(compressed.size);
-      if (statsEl) statsEl.textContent = formatStats(item.originalBytes, compressed.size);
       
+      // Animate stats update
+      if (statsEl) {
+        const currentStats = statsEl.textContent;
+        const newStats = formatStats(item.originalBytes, compressed.size);
+        animateStats(statsEl, currentStats, newStats);
+      }
+      
+      hideProcessing();
       toggleFrame(false);
     }
 
