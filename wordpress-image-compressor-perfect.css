@@ -1078,3 +1078,24 @@
     align-items: center;
   }
 }
+
+/* Toast notifications */
+.wp-toast {
+  position: fixed !important;
+  left: 50% !important;
+  bottom: 24px !important;
+  transform: translateX(-50%) !important;
+  background: linear-gradient(90deg, #6300E2, #8E43F0) !important;
+  color: #fff !important;
+  padding: 10px 14px !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+  z-index: 99999 !important;
+  font-family: inherit !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  white-space: nowrap !important;
+  min-width: 200px !important;
+  text-align: center !important;
+  pointer-events: none !important;
+}

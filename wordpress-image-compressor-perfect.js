@@ -134,9 +134,17 @@
     }
 
     function toast(message) { 
-      console.log('Toast message:', message); // Debug log
+      console.log('Toast function called with message:', message); // Debug log
+      
+      // Remove any existing toasts first
+      const existingToasts = document.querySelectorAll('.wp-toast');
+      existingToasts.forEach(toast => toast.remove());
+      
       const div = document.createElement('div'); 
+      div.className = 'wp-toast';
       div.textContent = message; 
+      
+      // Add inline styles as backup
       div.style.position = 'fixed'; 
       div.style.left = '50%'; 
       div.style.bottom = '24px'; 
@@ -146,20 +154,36 @@
       div.style.padding = '10px 14px'; 
       div.style.borderRadius = '12px'; 
       div.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'; 
-      div.style.zIndex = '9999'; 
+      div.style.zIndex = '99999'; 
       div.style.fontFamily = 'inherit';
       div.style.fontSize = '14px';
       div.style.fontWeight = '600';
       div.style.whiteSpace = 'nowrap';
       div.style.minWidth = '200px';
       div.style.textAlign = 'center';
+      div.style.pointerEvents = 'none';
+      
       document.body.appendChild(div); 
-      console.log('Toast element created and added to DOM'); // Debug log
+      console.log('Toast element created and added to DOM:', div); // Debug log
+      console.log('Toast element styles:', div.style.cssText); // Debug log
+      
       setTimeout(() => {
-        div.remove();
-        console.log('Toast element removed from DOM'); // Debug log
+        if (div.parentNode) {
+          div.remove();
+          console.log('Toast element removed from DOM'); // Debug log
+        }
       }, 3000); // Increased duration to 3 seconds for better visibility
     }
+
+    // Test toast function on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM loaded, testing toast function');
+      // Test toast after a short delay
+      setTimeout(() => {
+        console.log('Testing toast function...');
+        toast('Toast function test - if you see this, toast is working!');
+      }, 1000);
+    });
 
     function setEmptyState() { 
       const has = images.length > 0; 
@@ -496,6 +520,15 @@
       });
     }
 
+    // Test toast button
+    const testToastBtn = document.getElementById('wp-test-toast');
+    if (testToastBtn) {
+      testToastBtn.addEventListener('click', () => {
+        console.log('Test toast button clicked');
+        toast('This is a test toast message!');
+      });
+    }
+
     if (qualityRange) {
       qualityRange.addEventListener('input', (e) => {
         const value = e.target.value;
@@ -760,16 +793,20 @@
 
         if (action === 'copy') {
           try {
+            console.log('Copy action triggered'); // Debug log
             const compressed = await ensureCompressed(item, quality);
+            console.log('Image compressed, attempting to copy'); // Debug log
             
             // Try modern clipboard API first
             if (navigator.clipboard && navigator.clipboard.write) {
               try {
+                console.log('Using modern clipboard API'); // Debug log
                 await navigator.clipboard.write([
                   new ClipboardItem({
                     [compressed.blob.type]: compressed.blob
                   })
                 ]);
+                console.log('Copy successful via modern API'); // Debug log
                 toast('Image copied to clipboard successfully!');
                 return; // Success, exit early
               } catch (clipboardErr) {
@@ -779,6 +816,7 @@
             
             // Fallback: Try to copy image data to clipboard
             try {
+              console.log('Using fallback copy method'); // Debug log
               // Create a canvas and draw the image
               const canvas = document.createElement('canvas');
               const ctx = canvas.getContext('2d');
@@ -793,12 +831,28 @@
                   // Try to copy the canvas as image
                   canvas.toBlob(async (blob) => {
                     if (navigator.clipboard && navigator.clipboard.write) {
-                      await navigator.clipboard.write([
-                        new ClipboardItem({
-                          [blob.type]: blob
-                        })
-                      ]);
-                      toast('Image copied to clipboard successfully!');
+                      try {
+                        await navigator.clipboard.write([
+                          new ClipboardItem({
+                            [blob.type]: blob
+                          })
+                        ]);
+                        console.log('Copy successful via canvas fallback'); // Debug log
+                        toast('Image copied to clipboard successfully!');
+                      } catch (err) {
+                        console.error('Canvas clipboard failed:', err);
+                        // Final fallback: copy image URL
+                        const url = URL.createObjectURL(blob);
+                        const tempInput = document.createElement('input');
+                        tempInput.value = url;
+                        document.body.appendChild(tempInput);
+                        tempInput.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(tempInput);
+                        URL.revokeObjectURL(url);
+                        console.log('Copy successful via URL fallback'); // Debug log
+                        toast('Image URL copied to clipboard!');
+                      }
                     } else {
                       // Final fallback: copy image URL
                       const url = URL.createObjectURL(blob);
@@ -809,6 +863,7 @@
                       document.execCommand('copy');
                       document.body.removeChild(tempInput);
                       URL.revokeObjectURL(url);
+                      console.log('Copy successful via URL fallback'); // Debug log
                       toast('Image URL copied to clipboard!');
                     }
                   }, compressed.blob.type);
