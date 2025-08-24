@@ -175,6 +175,52 @@
       }, 3000); // Increased duration to 3 seconds for better visibility
     }
 
+    // Helper function to check if image is compressed
+    function isImageCompressed(item) {
+      return item.cachedCompressed && item.cachedCompressed.blob && item.cachedCompressed.blob.size < item.file.size;
+    }
+
+    // Helper function to get compression status
+    function getCompressionStatus(item) {
+      if (!item.cachedCompressed || !item.cachedCompressed.blob) {
+        return 'uncompressed';
+      }
+      if (item.cachedCompressed.blob.size < item.file.size) {
+        return 'compressed';
+      }
+      return 'same-size';
+    }
+
+    // Helper function to download multiple images
+    async function downloadImages(imageList, processingMessage) {
+      if (!qualityRange) return;
+      
+      const quality = parseInt(qualityRange.value);
+      showProcessing(processingMessage);
+      
+      let downloadedCount = 0;
+      for (const item of imageList) {
+        try {
+          const compressed = await ensureCompressed(item, quality);
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(compressed.blob);
+          link.download = item.name.replace(/(\.[^.]+)$/, '-compressed$1');
+          link.click();
+          URL.revokeObjectURL(link.href);
+          downloadedCount++;
+        } catch (err) {
+          console.error(`Failed to download ${item.name}:`, err);
+        }
+      }
+      
+      hideProcessing();
+      if (downloadedCount > 0) {
+        toast(`Downloaded ${downloadedCount} compressed image${downloadedCount > 1 ? 's' : ''}!`);
+      } else {
+        toast('No images were downloaded');
+      }
+    }
+
     // Helper function to copy image URL to clipboard
     function copyImageUrl(blob) {
       try {
@@ -194,7 +240,7 @@
         
         if (success) {
           console.log('✅ Copy successful via URL fallback!');
-          toast('Image URL copied to clipboard!');
+          toast('Compressed image URL copied to clipboard!');
         } else {
           console.log('❌ URL copy failed, downloading instead...');
           downloadImage(blob);
@@ -416,48 +462,74 @@
     }
 
     function renderList() {
-      // Clear the list completely to prevent duplicate buttons
-      if (imageListEl) {
-        imageListEl.innerHTML = '';
-      }
+      if (!imageListEl) return;
+      
+      imageListEl.innerHTML = '';
       
       if (images.length === 0) {
+        setEmptyState();
         return;
       }
       
-      images.forEach((item, index) => {
-        // Use the proper template structure as in original
-        const node = template.content.cloneNode(true);
-        const card = node.querySelector('.wp-image-card');
-        const thumb = node.querySelector('.wp-thumb');
-        const remove = node.querySelector('.wp-remove');
-
-        if (!card || !thumb || !remove) {
-          console.error('Template elements not found:', { card, thumb, remove });
-          return;
+      images.forEach(item => {
+        const template = document.getElementById('wp-image-card-template');
+        if (!template) return;
+        
+        const card = template.content.cloneNode(true);
+        const cardEl = card.querySelector('.wp-image-card');
+        if (!cardEl) return;
+        
+        cardEl.dataset.id = item.id;
+        
+        // Set image thumbnail
+        const thumb = cardEl.querySelector('.wp-thumb');
+        if (thumb) thumb.src = item.url;
+        
+        // Set image name
+        const name = cardEl.querySelector('.wp-name');
+        if (name) name.textContent = item.name;
+        
+        // Set image size
+        const size = cardEl.querySelector('.wp-size');
+        if (size) size.textContent = formatBytes(item.originalBytes);
+        
+        // Add compression status indicator
+        const status = getCompressionStatus(item);
+        if (status === 'compressed') {
+          cardEl.classList.add('compressed');
+          cardEl.style.borderColor = 'var(--primary)';
+          cardEl.style.boxShadow = '0 0 0 1px var(--primary)';
+        } else if (status === 'uncompressed') {
+          cardEl.classList.add('uncompressed');
+          cardEl.style.borderColor = '#ff6b6b';
+          cardEl.style.boxShadow = '0 0 0 1px #ff6b6b';
         }
-
-        card.dataset.id = item.id;
-        thumb.src = item.url;
-        thumb.alt = item.name;
-
+        
+        // Set selection state
+        if (item.id === selectedId) {
+          cardEl.classList.add('selected');
+        }
+        
         // Add click handler for image selection
-        card.addEventListener('click', () => {
+        cardEl.addEventListener('click', () => {
           selectImage(item.id);
         });
-
+        
         // Add remove button handler
-        remove.addEventListener('click', (e) => {
-          e.stopPropagation();
-          pendingDeleteAll = false;
-          pendingDeleteId = item.id;
-          if (confirmModal) confirmModal.showModal();
-        });
-
-        if (imageListEl) {
-          imageListEl.appendChild(node);
+        const remove = cardEl.querySelector('.wp-remove');
+        if (remove) {
+          remove.addEventListener('click', (e) => {
+            e.stopPropagation();
+            pendingDeleteAll = false;
+            pendingDeleteId = item.id;
+            if (confirmModal) confirmModal.showModal();
+          });
         }
+        
+        imageListEl.appendChild(card);
       });
+      
+      setEmptyState();
     }
 
     function setEmptyAndRender() { 
@@ -534,22 +606,80 @@
 
     if (downloadAllBtn) {
       downloadAllBtn.addEventListener('click', async () => {
-        if (!qualityRange) return;
-        
-        const quality = parseInt(qualityRange.value);
-        showProcessing('Downloading all...');
+        if (images.length === 0) {
+          toast('No images to download');
+          return;
+        }
+
+        // Check for uncompressed images
+        const uncompressedImages = [];
+        const compressedImages = [];
+        const sameSizeImages = [];
         
         for (const item of images) {
-          const compressed = await ensureCompressed(item, quality);
-          const link = document.createElement('a');
-          link.href = URL.createObjectURL(compressed.blob);
-          link.download = item.name.replace(/(\.[^.]+)$/, '-compressed$1');
-          link.click();
-          URL.revokeObjectURL(link.href);
+          const status = getCompressionStatus(item);
+          if (status === 'uncompressed') {
+            uncompressedImages.push(item);
+          } else if (status === 'compressed') {
+            compressedImages.push(item);
+          } else {
+            sameSizeImages.push(item);
+          }
         }
-        
-        hideProcessing();
-        toast(`Downloaded ${images.length} compressed image${images.length > 1 ? 's' : ''}`);
+
+        if (uncompressedImages.length > 0) {
+          // Show popup for uncompressed images
+          const message = `Found ${uncompressedImages.length} uncompressed image(s). What would you like to do?`;
+          const choice = confirm(`${message}\n\nClick OK to compress them first, or Cancel to ignore and download only compressed images.`);
+          
+          if (choice) {
+            // User chose to compress - jump to first uncompressed image
+            const firstUncompressed = uncompressedImages[0];
+            selectImage(firstUncompressed.id);
+            
+            // Scroll to the image in the list
+            const imageCard = document.querySelector(`[data-id="${firstUncompressed.id}"]`);
+            if (imageCard) {
+              imageCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              // Highlight the image briefly
+              imageCard.style.boxShadow = '0 0 0 3px var(--primary)';
+              setTimeout(() => {
+                imageCard.style.boxShadow = '';
+              }, 2000);
+            }
+            
+            toast(`Please compress image "${firstUncompressed.name}" first, then try downloading all again.`);
+            return;
+          } else {
+            // User chose to ignore - download only compressed images
+            if (compressedImages.length === 0) {
+              toast('No compressed images to download');
+              return;
+            }
+            await downloadImages(compressedImages, 'Downloading compressed images...');
+            return;
+          }
+        }
+
+        // Check if there are same-size images (compressed but no size reduction)
+        if (sameSizeImages.length > 0) {
+          const message = `Found ${sameSizeImages.length} image(s) that couldn't be compressed further. Download them anyway?`;
+          const choice = confirm(`${message}\n\nClick OK to download all images, or Cancel to skip same-size images.`);
+          
+          if (!choice) {
+            // User chose to skip same-size images
+            if (compressedImages.length === 0) {
+              toast('No compressed images to download');
+              return;
+            }
+            await downloadImages(compressedImages, 'Downloading compressed images...');
+            return;
+          }
+        }
+
+        // Download all images (compressed + same-size)
+        const allImages = [...compressedImages, ...sameSizeImages];
+        await downloadImages(allImages, 'Downloading all images...');
       });
     }
 
@@ -896,7 +1026,7 @@
                 
                 await navigator.clipboard.write([clipboardItem]);
                 console.log('✅ Copy successful via modern clipboard API!');
-                toast('Image copied to clipboard successfully!');
+                toast('Compressed image copied to clipboard!');
                 return;
               } catch (clipboardErr) {
                 console.log('❌ Modern clipboard failed:', clipboardErr);
@@ -925,7 +1055,7 @@
                           })
                         ]);
                         console.log('✅ Copy successful via canvas method!');
-                        toast('Image copied to clipboard successfully!');
+                        toast('Compressed image copied to clipboard!');
                       } catch (err) {
                         console.log('❌ Canvas clipboard failed:', err);
                         // Fallback to URL copy
@@ -954,13 +1084,18 @@
             toast('Failed to copy image');
           }
         } else if (action === 'download') {
-          const compressed = await ensureCompressed(item, quality);
-          const link = document.createElement('a');
-          link.href = URL.createObjectURL(compressed.blob);
-          link.download = item.name.replace(/(\.[^.]+)$/, '-compressed$1');
-          link.click();
-          URL.revokeObjectURL(link.href);
-          toast('Image downloaded');
+          try {
+            const compressed = await ensureCompressed(item, quality);
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(compressed.blob);
+            link.download = item.name.replace(/(\.[^.]+)$/, '-compressed$1');
+            link.click();
+            URL.revokeObjectURL(link.href);
+            toast('Compressed image downloaded!');
+          } catch (err) {
+            console.error('Download error:', err);
+            toast('Failed to download image');
+          }
         }
       });
     }

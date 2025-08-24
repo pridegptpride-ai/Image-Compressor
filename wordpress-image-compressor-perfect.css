@@ -947,13 +947,15 @@
   }
   
   .wp-modal-actions {
-    flex-direction: column;
+    flex-direction: row; /* Keep buttons horizontal on small screens */
     gap: 8px;
     margin-top: 12px;
+    justify-content: center; /* Center the buttons */
   }
   
   .wp-modal-actions .wp-btn {
-    width: 100%;
+    flex: 1; /* Make buttons equal width */
+    min-width: 120px; /* Ensure minimum button width */
     justify-content: center;
   }
 }
@@ -1151,6 +1153,47 @@
     margin-bottom: 6px;
     align-items: center;
   }
+}
+
+/* Image Card Compression Status Indicators */
+.wp-image-card.compressed {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 1px var(--primary) !important;
+  position: relative;
+}
+
+.wp-image-card.compressed::after {
+  content: '✓ Compressed';
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  z-index: 5;
+}
+
+.wp-image-card.uncompressed {
+  border-color: #ff6b6b !important;
+  box-shadow: 0 0 0 1px #ff6b6b !important;
+  position: relative;
+}
+
+.wp-image-card.uncompressed::after {
+  content: '⚠ Uncompressed';
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #ff6b6b;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  z-index: 5;
 }
 
 /* Toast notifications */
