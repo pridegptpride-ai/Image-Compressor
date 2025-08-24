@@ -210,28 +210,16 @@
         const node = template.content.cloneNode(true);
         const card = node.querySelector('.wp-image-card');
         const thumb = node.querySelector('.wp-thumb');
-        const name = node.querySelector('.wp-name');
-        const size = node.querySelector('.wp-size');
-        const type = node.querySelector('.wp-type');
-        const reduction = node.querySelector('.wp-reduction');
         const remove = node.querySelector('.wp-remove');
 
-        if (!card || !thumb || !name || !size || !type || !reduction || !remove) {
-          console.error('Template elements not found:', { card, thumb, name, size, type, reduction, remove });
+        if (!card || !thumb || !remove) {
+          console.error('Template elements not found:', { card, thumb, remove });
           return;
         }
 
         card.dataset.id = item.id;
         thumb.src = item.url;
-        name.textContent = item.name;
-        size.textContent = formatBytes(item.originalBytes);
-        type.textContent = item.type.split('/')[1].toUpperCase();
-
-        if (item.cachedCompressed) {
-          reduction.textContent = computeReduction(item.originalBytes, item.cachedCompressed.blob.size);
-        } else {
-          reduction.textContent = '—';
-        }
+        thumb.alt = item.name;
 
         remove.addEventListener('click', () => {
           pendingDeleteId = item.id;
@@ -327,10 +315,14 @@
         setEmptyState();
         fileInput.value = '';
         
-        if (images.length === 1) {
-          // Auto-select first image
+        // Auto-select first image by default
+        if (images.length > 0) {
           const firstCard = imageListEl.querySelector('.wp-image-card');
-          if (firstCard) firstCard.click();
+          if (firstCard) {
+            firstCard.click();
+            selectedId = images[0].id;
+            updatePreview(images[0]);
+          }
         }
         
         toast(`Added ${files.length} image${files.length > 1 ? 's' : ''}`);
@@ -391,6 +383,15 @@
         }
         
         renderList();
+        
+        // Re-select the previously selected image after sorting
+        if (selectedId) {
+          const selectedCard = imageListEl.querySelector(`[data-id="${selectedId}"]`);
+          if (selectedCard) {
+            selectedCard.classList.add('selected');
+          }
+        }
+        
         toast(`Sorted by ${e.target.textContent}`);
       });
     }
@@ -474,6 +475,17 @@
             
             renderList();
             setEmptyState();
+            
+            // Auto-select first remaining image if available
+            if (images.length > 0 && !selectedId) {
+              const firstCard = imageListEl.querySelector('.wp-image-card');
+              if (firstCard) {
+                firstCard.click();
+                selectedId = images[0].id;
+                updatePreview(images[0]);
+              }
+            }
+            
             toast('Image deleted');
           }
         } else if (pendingReset) {
@@ -543,9 +555,14 @@
         renderList();
         setEmptyState();
         
-        if (images.length === 1) {
+        // Auto-select first image by default
+        if (images.length > 0) {
           const firstCard = imageListEl.querySelector('.wp-image-card');
-          if (firstCard) firstCard.click();
+          if (firstCard) {
+            firstCard.click();
+            selectedId = images[0].id;
+            updatePreview(images[0]);
+          }
         }
         
         toast(`Added ${files.length} image${files.length > 1 ? 's' : ''}`);

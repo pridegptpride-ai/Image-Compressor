@@ -414,21 +414,6 @@
   flex-shrink: 0;
 }
 
-/* Image Meta */
-.wp-image-card .wp-meta {
-  margin-top: 8px;
-  color: var(--muted);
-  font-size: 12px;
-  padding: 0 12px;
-}
-
-.wp-image-card .wp-meta-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
 /* Preview Area */
 .wp-preview-area {
   border: 1px dashed var(--border);
@@ -576,6 +561,7 @@
   border-radius: 50%;
   background: #fff;
   border: 3px solid var(--secondary);
+  border-radius: 50%;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   cursor: pointer;
 }
