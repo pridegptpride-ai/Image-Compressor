@@ -664,15 +664,48 @@
         if (action === 'copy') {
           try {
             const compressed = await ensureCompressed(item, quality);
-            await navigator.clipboard.write([
-              new ClipboardItem({
-                [compressed.blob.type]: compressed.blob
-              })
-            ]);
-            toast('Image copied to clipboard');
+            
+            // Try modern clipboard API first
+            if (navigator.clipboard && navigator.clipboard.write) {
+              await navigator.clipboard.write([
+                new ClipboardItem({
+                  [compressed.blob.type]: compressed.blob
+                })
+              ]);
+              toast('Image copied to clipboard');
+            } else {
+              // Fallback: create a temporary link and copy
+              const link = document.createElement('a');
+              link.href = URL.createObjectURL(compressed.blob);
+              link.download = item.name.replace(/(\.[^.]+)$/, '-compressed$1');
+              
+              // Create a temporary input to copy the URL
+              const tempInput = document.createElement('input');
+              tempInput.value = link.href;
+              document.body.appendChild(tempInput);
+              tempInput.select();
+              document.execCommand('copy');
+              document.body.removeChild(tempInput);
+              
+              URL.revokeObjectURL(link.href);
+              toast('Image URL copied to clipboard');
+            }
           } catch (err) {
-            toast('Failed to copy image');
             console.error('Copy error:', err);
+            
+            // Final fallback: download the image
+            try {
+              const compressed = await ensureCompressed(item, quality);
+              const link = document.createElement('a');
+              link.href = URL.createObjectURL(compressed.blob);
+              link.download = item.name.replace(/(\.[^.]+)$/, '-compressed$1');
+              link.click();
+              URL.revokeObjectURL(link.href);
+              toast('Copy failed, image downloaded instead');
+            } catch (downloadErr) {
+              toast('Failed to copy or download image');
+              console.error('Download fallback error:', downloadErr);
+            }
           }
         } else if (action === 'download') {
           const compressed = await ensureCompressed(item, quality);
