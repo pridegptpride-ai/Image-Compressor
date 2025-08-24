@@ -755,45 +755,82 @@
             
             // Try modern clipboard API first
             if (navigator.clipboard && navigator.clipboard.write) {
-              await navigator.clipboard.write([
-                new ClipboardItem({
-                  [compressed.blob.type]: compressed.blob
-                })
-              ]);
-              toast('Image copied to clipboard');
-            } else {
-              // Fallback: create a temporary link and copy
-              const link = document.createElement('a');
-              link.href = URL.createObjectURL(compressed.blob);
-              link.download = item.name.replace(/(\.[^.]+)$/, '-compressed$1');
-              
-              // Create a temporary input to copy the URL
-              const tempInput = document.createElement('input');
-              tempInput.value = link.href;
-              document.body.appendChild(tempInput);
-              tempInput.select();
-              document.execCommand('copy');
-              document.body.removeChild(tempInput);
-              
-              URL.revokeObjectURL(link.href);
-              toast('Image URL copied to clipboard');
+              try {
+                await navigator.clipboard.write([
+                  new ClipboardItem({
+                    [compressed.blob.type]: compressed.blob
+                  })
+                ]);
+                toast('Image copied to clipboard');
+                return; // Success, exit early
+              } catch (clipboardErr) {
+                console.log('Modern clipboard failed, trying fallback:', clipboardErr);
+              }
             }
-          } catch (err) {
-            console.error('Copy error:', err);
             
-            // Final fallback: download the image
+            // Fallback: Try to copy image data to clipboard
             try {
-              const compressed = await ensureCompressed(item, quality);
+              // Create a canvas and draw the image
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
+              const img = new Image();
+              
+              img.onload = async () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                
+                try {
+                  // Try to copy the canvas as image
+                  canvas.toBlob(async (blob) => {
+                    if (navigator.clipboard && navigator.clipboard.write) {
+                      await navigator.clipboard.write([
+                        new ClipboardItem({
+                          [blob.type]: blob
+                        })
+                      ]);
+                      toast('Image copied to clipboard');
+                    } else {
+                      // Final fallback: copy image URL
+                      const url = URL.createObjectURL(blob);
+                      const tempInput = document.createElement('input');
+                      tempInput.value = url;
+                      document.body.appendChild(tempInput);
+                      tempInput.select();
+                      document.execCommand('copy');
+                      document.body.removeChild(tempInput);
+                      URL.revokeObjectURL(url);
+                      toast('Image URL copied to clipboard');
+                    }
+                  }, compressed.blob.type);
+                } catch (err) {
+                  console.error('Canvas copy failed:', err);
+                  toast('Copy failed, image downloaded instead');
+                  // Download as final fallback
+                  const link = document.createElement('a');
+                  link.href = URL.createObjectURL(compressed.blob);
+                  link.download = item.name.replace(/(\.[^.]+)$/, '-compressed$1');
+                  link.click();
+                  URL.revokeObjectURL(link.href);
+                }
+              };
+              
+              img.src = URL.createObjectURL(compressed.blob);
+              
+            } catch (fallbackErr) {
+              console.error('Fallback copy failed:', fallbackErr);
+              toast('Copy failed, image downloaded instead');
+              // Download as final fallback
               const link = document.createElement('a');
               link.href = URL.createObjectURL(compressed.blob);
               link.download = item.name.replace(/(\.[^.]+)$/, '-compressed$1');
               link.click();
               URL.revokeObjectURL(link.href);
-              toast('Copy failed, image downloaded instead');
-            } catch (downloadErr) {
-              toast('Failed to copy or download image');
-              console.error('Download fallback error:', downloadErr);
             }
+            
+          } catch (err) {
+            console.error('Copy error:', err);
+            toast('Failed to copy image');
           }
         } else if (action === 'download') {
           const compressed = await ensureCompressed(item, quality);
