@@ -175,6 +175,78 @@
       }, 3000); // Increased duration to 3 seconds for better visibility
     }
 
+    // Helper function to compress all images at current quality
+    async function compressAllImages() {
+      if (!qualityRange) return;
+      
+      const quality = parseInt(qualityRange.value);
+      showProcessing('Compressing all images...');
+      
+      for (let i = 0; i < images.length; i++) {
+        const item = images[i];
+        try {
+          await ensureCompressed(item, quality);
+          // Update progress
+          const progress = Math.round(((i + 1) / images.length) * 100);
+          showProcessing(`Compressing all images... ${progress}%`);
+        } catch (err) {
+          console.error(`Failed to compress ${item.name}:`, err);
+        }
+      }
+      
+      hideProcessing();
+      
+      // Refresh all image card statuses after bulk compression
+      refreshAllImageCardStatuses();
+      
+      toast(`Compressed ${images.length} image(s) at ${quality}% quality`);
+    }
+
+    // Helper function to update all image card statuses
+    function refreshAllImageCardStatuses() {
+      images.forEach(item => {
+        updateImageCardStatus(item);
+      });
+    }
+
+    // Helper function to update individual image card status
+    function updateImageCardStatus(item) {
+      const card = document.querySelector(`[data-id="${item.id}"]`);
+      if (!card) return;
+      
+      // Remove existing status classes
+      card.classList.remove('compressed', 'uncompressed');
+      card.style.borderColor = '';
+      card.style.boxShadow = '';
+      
+      // Get current compression status
+      const status = getCompressionStatus(item);
+      
+      // Apply new status
+      if (status === 'compressed') {
+        card.classList.add('compressed');
+        card.style.borderColor = 'var(--primary)';
+        card.style.boxShadow = '0 0 0 1px var(--primary)';
+      } else if (status === 'uncompressed') {
+        card.classList.add('uncompressed');
+        card.style.borderColor = '#ff6b6b';
+        card.style.boxShadow = '0 0 0 1px #ff6b6b';
+      }
+      
+      // Update size display if it exists
+      const sizeElement = card.querySelector('.wp-size');
+      if (sizeElement) {
+        if (status === 'compressed' && item.cachedCompressed && item.cachedCompressed.blob) {
+          const originalSize = formatBytes(item.originalBytes);
+          const compressedSize = formatBytes(item.cachedCompressed.blob.size);
+          const reduction = Math.round(((item.originalBytes - item.cachedCompressed.blob.size) / item.originalBytes) * 100);
+          sizeElement.textContent = `${originalSize} → ${compressedSize} (${reduction}% smaller)`;
+        } else {
+          sizeElement.textContent = formatBytes(item.originalBytes);
+        }
+      }
+    }
+
     // Helper function to check if image is compressed
     function isImageCompressed(item) {
       return item.cachedCompressed && item.cachedCompressed.blob && item.cachedCompressed.blob.size < item.file.size;
@@ -326,6 +398,13 @@
       if (deleteAllBtn) deleteAllBtn.disabled = !has; 
       if (deleteAllBtn) deleteAllBtn.style.display = has ? '' : 'none'; 
       if (downloadAllBtn) downloadAllBtn.disabled = !has; 
+      
+      // Enable/disable compress all button
+      const compressAllBtn = document.getElementById('wp-compress-all');
+      if (compressAllBtn) {
+        compressAllBtn.disabled = !has;
+        compressAllBtn.style.display = has ? '' : 'none';
+      }
     }
     
     function toggleFrame(showFrame) { 
@@ -428,6 +507,10 @@
       if (item.cachedCompressed && item.cachedCompressed.url) URL.revokeObjectURL(item.cachedCompressed.url);
       const url = URL.createObjectURL(resultBlob);
       item.cachedCompressed = { quality, blob: resultBlob, url };
+      
+      // Update the UI immediately after compression
+      updateImageCardStatus(item);
+      
       return item.cachedCompressed;
     }
 
@@ -459,6 +542,24 @@
           card.classList.toggle('selected', card.dataset.id === id); 
         }); 
       }
+      
+      // Update the image card status to reflect current compression state
+      updateImageCardStatus(item);
+    }
+
+    async function updatePreview() {
+      const item = getSelected();
+      if (!item) return;
+      
+      if (!qualityRange) return;
+      const quality = parseInt(qualityRange.value);
+      
+      const compressed = await ensureCompressed(item, quality);
+      if (overlayImg) overlayImg.src = compressed.url;
+      updateStats(item, compressed.blob);
+      
+      // Update the image card status after quality change
+      updateImageCardStatus(item);
     }
 
     function renderList() {
@@ -535,8 +636,15 @@
     function setEmptyAndRender() { 
       setEmptyState(); 
       renderList(); 
-      if (images.length) selectImage(images[images.length - 1].id); 
-      else clearPreview(); 
+      
+      // Ensure all image card statuses are properly displayed
+      setTimeout(() => {
+        refreshAllImageCardStatuses();
+      }, 100);
+      
+      if (images.length > 0) {
+        selectImage(images[images.length - 1].id);
+      }
     }
 
     function syncQualityInputs(val) { 
@@ -748,10 +856,25 @@
       });
     }
 
+    // Compress all button
+    const compressAllBtn = document.getElementById('wp-compress-all');
+    if (compressAllBtn) {
+      compressAllBtn.addEventListener('click', () => {
+        if (images.length === 0) {
+          toast('No images to compress');
+          return;
+        }
+        compressAllImages();
+      });
+    }
+
     if (qualityRange) {
       qualityRange.addEventListener('input', (e) => {
         const value = e.target.value;
         syncQualityInputs(value);
+        
+        // Update preview and status when quality changes
+        updatePreview();
       });
     }
 
@@ -760,6 +883,9 @@
         if (!qualityValueInput.value) return;
         const value = qualityValueInput.value;
         syncQualityInputs(value);
+        
+        // Update preview and status when quality changes
+        updatePreview();
       });
     }
 
@@ -841,9 +967,12 @@
             if (qualityValueInput) qualityValueInput.value = String(chosen.q);
             updateStats(item, chosen.blob);
             
+            // Update the image card status after applying max size
+            updateImageCardStatus(item);
+            
             toast('Optimized');
           } else {
-            toast('Failed to optimize');
+            toast('Could not meet target size');
           }
           
           bitmap.close();
