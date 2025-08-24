@@ -129,11 +129,7 @@
       setTimeout(() => {
         element.textContent = endText;
         element.style.opacity = '1';
-        element.style.transform = 'scale(1.05)';
-        
-        setTimeout(() => {
-          element.style.transform = 'scale(1)';
-        }, 150);
+        element.style.transform = 'none';
       }, 100);
     }
 
@@ -441,6 +437,14 @@
         filterButton.setAttribute('aria-expanded', !expanded);
         filterMenu.hidden = expanded;
       });
+      
+      // Close filter menu when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!filterButton.contains(e.target) && !filterMenu.contains(e.target)) {
+          filterMenu.hidden = true;
+          filterButton.setAttribute('aria-expanded', 'false');
+        }
+      });
     }
 
     if (filterMenu) {
@@ -484,26 +488,110 @@
     }
 
     if (qualityRange) {
-      qualityRange.addEventListener('input', (e) => syncQualityInputs(e.target.value));
+      qualityRange.addEventListener('input', (e) => {
+        const value = e.target.value;
+        syncQualityInputs(value);
+      });
     }
 
     if (qualityValueInput) {
       qualityValueInput.addEventListener('input', () => {
         if (!qualityValueInput.value) return;
-        syncQualityInputs(qualityValueInput.value);
+        const value = qualityValueInput.value;
+        syncQualityInputs(value);
       });
     }
 
     if (applyMaxBtn && maxSizeInput) {
-      applyMaxBtn.addEventListener('click', () => {
+      applyMaxBtn.addEventListener('click', async () => {
         const maxSize = parseInt(maxSizeInput.value);
         if (isNaN(maxSize) || maxSize < 1) {
           toast('Enter valid KB');
           return;
         }
         
-        // Apply max size logic here
-        toast(`Max file size set to ${maxSize} KB`);
+        const item = getSelected();
+        if (!item) {
+          toast('Select an image');
+          return;
+        }
+        
+        const targetBytes = Math.round(maxSize * 1024);
+        
+        // If target >= original, keep original
+        if (targetBytes >= item.file.size) {
+          if (item.cachedCompressed && item.cachedCompressed.url) URL.revokeObjectURL(item.cachedCompressed.url);
+          const url = item.url;
+          item.cachedCompressed = { quality: 100, blob: item.file, url };
+          if (overlayImg) overlayImg.src = url;
+          if (qualityRange) qualityRange.value = '100';
+          if (qualityValueInput) qualityValueInput.value = '100';
+          updateStats(item, item.file);
+          toast('Optimized');
+          return;
+        }
+        
+        showProcessing('Optimizing...');
+        
+        try {
+          const tolerance = Math.max(1024, Math.round(targetBytes * 0.02));
+          const bitmap = await createImageBitmap(item.file);
+          
+          async function searchForTarget(mime) {
+            let low = 1, high = 100;
+            let bestBelow = null, bestAbove = null;
+            
+            for (let i = 0; i < 12; i++) {
+              const mid = Math.round((low + high) / 2);
+              const blob = await compressBitmapToMime(bitmap, mid, mime);
+              const diff = Math.abs(blob.size - targetBytes);
+              
+              if (diff <= tolerance) return { q: mid, blob };
+              
+              if (blob.size <= targetBytes) {
+                if (!bestBelow || blob.size > bestBelow.blob.size) bestBelow = { q: mid, blob };
+                high = mid - 1;
+              } else {
+                if (!bestAbove || blob.size < bestAbove.blob.size) bestAbove = { q: mid, blob };
+                low = mid + 1;
+              }
+              
+              await new Promise(r => setTimeout(r, 0));
+            }
+            
+            return bestBelow || bestAbove;
+          }
+          
+          const originalMime = item.file.type.includes('png') ? 'image/png' : 'image/jpeg';
+          let chosen = await searchForTarget(originalMime);
+          
+          if (chosen && chosen.blob.size > targetBytes && originalMime === 'image/png') {
+            const jpegTry = await searchForTarget('image/jpeg');
+            if (jpegTry && (!chosen || jpegTry.blob.size < chosen.blob.size)) chosen = jpegTry;
+          }
+          
+          if (chosen) {
+            const url = URL.createObjectURL(chosen.blob);
+            if (item.cachedCompressed && item.cachedCompressed.url) URL.revokeObjectURL(item.cachedCompressed.url);
+            item.cachedCompressed = { quality: chosen.q, blob: chosen.blob, url };
+            
+            if (overlayImg) overlayImg.src = url;
+            if (qualityRange) qualityRange.value = String(chosen.q);
+            if (qualityValueInput) qualityValueInput.value = String(chosen.q);
+            updateStats(item, chosen.blob);
+            
+            toast('Optimized');
+          } else {
+            toast('Failed to optimize');
+          }
+          
+          bitmap.close();
+        } catch (err) {
+          console.error('Optimization error:', err);
+          toast('Optimization failed');
+        }
+        
+        hideProcessing();
       });
     }
 
