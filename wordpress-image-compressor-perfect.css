@@ -157,7 +157,7 @@
   padding: 10px 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: none;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
   font-family: inherit;
   font-size: 14px;
@@ -171,12 +171,12 @@
 }
 
 .wp-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 .wp-btn:active {
-  transform: translateY(0);
+  transform: none;
 }
 
 .wp-btn.primary {
@@ -185,8 +185,8 @@
 }
 
 .wp-btn.primary:hover {
-  background: #5a00cb;
-  box-shadow: 0 6px 20px rgba(99, 0, 226, 0.4);
+  background: var(--primary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 .wp-btn.secondary {
@@ -195,8 +195,8 @@
 }
 
 .wp-btn.secondary:hover {
-  background: #7b39d5;
-  box-shadow: 0 6px 20px rgba(142, 67, 240, 0.4);
+  background: var(--secondary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 .wp-btn.ghost {
@@ -205,18 +205,19 @@
 }
 
 .wp-btn.ghost:hover {
-  background: #efeff7;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: #f7f7fb;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 .wp-btn.danger {
-  background: #ff4d4f;
+  background: #8B0000;
   color: #fff;
+  border-color: #8B0000;
 }
 
 .wp-btn.danger:hover {
-  background: #e63939;
-  box-shadow: 0 6px 20px rgba(255, 77, 79, 0.4);
+  background: #8B0000;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 .wp-btn.small {
@@ -241,7 +242,7 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
   font-size: 14px;
   font-weight: 600;
-  transition: all 0.2s ease;
+  transition: none;
   color: var(--primary);
   display: inline-block;
   text-align: center;
@@ -254,9 +255,9 @@
 }
 
 .wp-icon-btn:hover {
-  background: #efeff7;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: #f7f7fb;
+  transform: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 .wp-icon-btn.outline {
@@ -266,11 +267,11 @@
 }
 
 .wp-icon-btn.outline:hover {
-  border-color: var(--secondary);
-  color: var(--secondary);
-  background: rgba(142, 67, 240, 0.06);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(142, 67, 240, 0.15);
+  border-color: var(--border);
+  color: var(--primary);
+  background: transparent;
+  transform: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 /* Specific top margin for apply-max and reset-tool buttons */
@@ -360,13 +361,13 @@
   font-family: inherit;
   font-size: 14px;
   font-weight: 400;
-  transition: all 0.2s ease;
+  transition: none;
 }
 
 .wp-menu-item:hover {
   background: rgba(99, 0, 226, 0.06);
   color: var(--primary);
-  transform: translateX(4px);
+  transform: none;
 }
 
 /* Empty State */
@@ -423,7 +424,7 @@
   top: 6px;
   right: 6px;
   border: none;
-  background: var(--primary) !important;
+  background: #8B0000 !important;
   color: #fff !important;
   border-radius: 50%;
   width: 24px;
@@ -432,7 +433,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: none;
   z-index: 10;
   font-size: 14px;
   font-weight: bold;
@@ -445,9 +446,9 @@
 }
 
 .wp-image-card .wp-remove:hover {
-  background: #5a00cb !important;
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(99, 0, 226, 0.4);
+  background: #8B0000 !important;
+  transform: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 /* Thumbnail */
@@ -499,13 +500,13 @@
   font-family: inherit;
   text-transform: capitalize;
   letter-spacing: 0.5px;
-  transition: all 0.2s ease;
+  transition: none;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .wp-image-card .wp-image-action-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  transform: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .wp-image-card .wp-copy-btn {
@@ -514,8 +515,8 @@
 }
 
 .wp-image-card .wp-copy-btn:hover {
-  background: #7b39d5;
-  box-shadow: 0 6px 20px rgba(142, 67, 240, 0.5);
+  background: var(--secondary);
+  box-shadow: 0 2px 8px rgba(142, 67, 240, 0.3);
 }
 
 .wp-image-card .wp-download-btn {
@@ -524,8 +525,8 @@
 }
 
 .wp-image-card .wp-download-btn:hover {
-  background: #5a00cb;
-  box-shadow: 0 6px 20px rgba(99, 0, 226, 0.5);
+  background: var(--primary);
+  box-shadow: 0 2px 8px rgba(99, 0, 226, 0.3);
 }
 
 .wp-image-card .wp-image-action-btn:active {
