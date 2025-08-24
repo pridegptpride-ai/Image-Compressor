@@ -174,6 +174,7 @@
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
   font-size: 18px;
+  font-weight: bold;
   transition: all 0.2s ease;
   color: var(--primary);
 }
@@ -347,6 +348,7 @@
   height: 110px;
   object-fit: cover;
   background: #f1f1f7;
+  border-radius: 8px;
 }
 
 /* Image Actions - EXACTLY as in original */
@@ -386,6 +388,7 @@
   gap: 6px;
   z-index: 1;
   font-family: inherit;
+  text-transform: capitalize;
 }
 
 .wp-image-card .wp-copy-btn {
@@ -418,10 +421,6 @@
   outline: none;
   box-shadow: none;
   border: none;
-}
-
-.wp-image-card .wp-image-action-btn svg {
-  flex-shrink: 0;
 }
 
 /* Preview Area */
