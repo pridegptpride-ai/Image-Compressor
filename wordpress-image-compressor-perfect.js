@@ -126,7 +126,7 @@
 
     function setEmptyState() { 
       const has = images.length > 0; 
-      emptyState.style.display = has ? 'none' : ''; 
+      if (emptyState) emptyState.style.display = has ? 'none' : ''; 
       if (deleteAllBtn) deleteAllBtn.disabled = !has; 
       if (deleteAllBtn) deleteAllBtn.style.display = has ? '' : 'none'; 
       if (downloadAllBtn) downloadAllBtn.disabled = !has; 
@@ -216,6 +216,11 @@
         const reduction = node.querySelector('.wp-reduction');
         const remove = node.querySelector('.wp-remove');
 
+        if (!card || !thumb || !name || !size || !type || !reduction || !remove) {
+          console.error('Template elements not found:', { card, thumb, name, size, type, reduction, remove });
+          return;
+        }
+
         card.dataset.id = item.id;
         thumb.src = item.url;
         name.textContent = item.name;
@@ -230,7 +235,7 @@
 
         remove.addEventListener('click', () => {
           pendingDeleteId = item.id;
-          confirmModal.showModal();
+          if (confirmModal) confirmModal.showModal();
         });
 
         card.addEventListener('click', () => {
@@ -255,23 +260,25 @@
     function updatePreview(item) {
       if (!item) return;
       
-      baseImg.src = item.url;
-      originalMeta.textContent = formatBytes(item.originalBytes);
+      if (baseImg) baseImg.src = item.url;
+      if (originalMeta) originalMeta.textContent = formatBytes(item.originalBytes);
       
       if (item.cachedCompressed) {
-        overlayImg.src = item.cachedCompressed.url;
-        compressedMeta.textContent = formatBytes(item.cachedCompressed.blob.size);
-        statsEl.textContent = computeReduction(item.originalBytes, item.cachedCompressed.blob.size);
+        if (overlayImg) overlayImg.src = item.cachedCompressed.url;
+        if (compressedMeta) compressedMeta.textContent = formatBytes(item.cachedCompressed.blob.size);
+        if (statsEl) statsEl.textContent = computeReduction(item.originalBytes, item.cachedCompressed.blob.size);
       } else {
-        overlayImg.src = item.url;
-        compressedMeta.textContent = '—';
-        statsEl.textContent = '—';
+        if (overlayImg) overlayImg.src = item.url;
+        if (compressedMeta) compressedMeta.textContent = '—';
+        if (statsEl) statsEl.textContent = '—';
       }
       
       toggleFrame(false);
     }
 
     function syncQualityInputs() {
+      if (!qualityRange || !qualityValueInput) return;
+      
       const value = qualityRange.value;
       qualityValueInput.value = value;
       
@@ -290,7 +297,9 @@
 
     // Event Listeners
     if (iconAdd) {
-      iconAdd.addEventListener('click', () => fileInput.click());
+      iconAdd.addEventListener('click', () => {
+        if (fileInput) fileInput.click();
+      });
     }
 
     if (fileInput) {
@@ -331,12 +340,14 @@
     if (deleteAllBtn) {
       deleteAllBtn.addEventListener('click', () => {
         pendingDeleteAll = true;
-        confirmModal.showModal();
+        if (confirmModal) confirmModal.showModal();
       });
     }
 
     if (downloadAllBtn) {
       downloadAllBtn.addEventListener('click', async () => {
+        if (!qualityRange) return;
+        
         const quality = parseInt(qualityRange.value);
         
         for (const item of images) {
@@ -352,7 +363,7 @@
       });
     }
 
-    if (filterButton) {
+    if (filterButton && filterMenu) {
       filterButton.addEventListener('click', () => {
         const expanded = filterButton.getAttribute('aria-expanded') === 'true';
         filterButton.setAttribute('aria-expanded', !expanded);
@@ -366,7 +377,7 @@
         
         const sort = e.target.dataset.sort;
         filterMenu.hidden = true;
-        filterButton.setAttribute('aria-expanded', 'false');
+        if (filterButton) filterButton.setAttribute('aria-expanded', 'false');
         
         // Sort images
         if (sort === 'az') {
@@ -387,7 +398,7 @@
     if (resetToolBtn) {
       resetToolBtn.addEventListener('click', () => {
         pendingReset = true;
-        confirmModal.showModal();
+        if (confirmModal) confirmModal.showModal();
       });
     }
 
@@ -397,6 +408,7 @@
 
     if (qualityValueInput) {
       qualityValueInput.addEventListener('input', () => {
+        if (!qualityRange) return;
         qualityRange.value = qualityValueInput.value;
         syncQualityInputs();
       });
@@ -425,7 +437,7 @@
 
     if (cancelDelete) {
       cancelDelete.addEventListener('click', () => {
-        confirmModal.close();
+        if (confirmModal) confirmModal.close();
         pendingDeleteAll = false;
         pendingDeleteId = null;
         pendingReset = false;
@@ -436,8 +448,10 @@
       confirmDelete.addEventListener('click', () => {
         if (pendingDeleteAll) {
           // Clear all images
-          images.forEach(item => URL.revokeObjectURL(item.url));
-          if (item.cachedCompressed) URL.revokeObjectURL(item.cachedCompressed.url);
+          images.forEach(item => {
+            URL.revokeObjectURL(item.url);
+            if (item.cachedCompressed) URL.revokeObjectURL(item.cachedCompressed.url);
+          });
           images.length = 0;
           selectedId = null;
           renderList();
@@ -464,8 +478,10 @@
           }
         } else if (pendingReset) {
           // Reset tool
-          images.forEach(item => URL.revokeObjectURL(item.url));
-          if (item.cachedCompressed) URL.revokeObjectURL(item.cachedCompressed.url);
+          images.forEach(item => {
+            URL.revokeObjectURL(item.url);
+            if (item.cachedCompressed) URL.revokeObjectURL(item.cachedCompressed.url);
+          });
           images.length = 0;
           selectedId = null;
           renderList();
@@ -483,7 +499,7 @@
           toast('Tool reset successfully');
         }
         
-        confirmModal.close();
+        if (confirmModal) confirmModal.close();
         pendingDeleteAll = false;
         pendingDeleteId = null;
         pendingReset = false;
@@ -535,7 +551,9 @@
         toast(`Added ${files.length} image${files.length > 1 ? 's' : ''}`);
       });
 
-      uploadFrame.addEventListener('click', () => fileInput.click());
+      uploadFrame.addEventListener('click', () => {
+        if (fileInput) fileInput.click();
+      });
     }
 
     // Image list event delegation for copy/download
@@ -552,6 +570,7 @@
         const item = images.find(i => i.id === id);
         if (!item) return;
 
+        if (!qualityRange) return;
         const quality = parseInt(qualityRange.value);
 
         if (action === 'copy') {
