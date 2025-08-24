@@ -290,6 +290,30 @@
   box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.25);
 }
 
+/* Confirm delete button should have dark red background */
+#wp-confirm-delete {
+  background: #8B0000 !important;
+  color: #fff !important;
+  border-color: #8B0000 !important;
+}
+
+#wp-confirm-delete:hover {
+  background: #8B0000 !important;
+  color: #fff !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+#wp-confirm-delete:active {
+  background: #8B0000 !important;
+  color: #fff !important;
+}
+
+#wp-confirm-delete:focus {
+  background: #8B0000 !important;
+  color: #fff !important;
+  box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.25);
+}
+
 .wp-btn.small {
   padding: 8px 10px;
   font-size: 12px;
@@ -425,26 +449,6 @@
 #wp-icon-filter {
   position: relative;
   z-index: 1001;
-  background: #8B0000 !important;
-  color: #fff !important;
-  border-color: #8B0000 !important;
-}
-
-#wp-icon-filter:hover {
-  background: #8B0000 !important;
-  color: #fff !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-}
-
-#wp-icon-filter:active {
-  background: #8B0000 !important;
-  color: #fff !important;
-}
-
-#wp-icon-filter:focus {
-  background: #8B0000 !important;
-  color: #fff !important;
-  box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.25);
 }
 
 /* Filter Menu */
@@ -468,7 +472,7 @@
 
 /* Ensure filter menu appears over all containers */
 .wp-filter-menu.show {
-  display: block;
+  display: block !important;
   z-index: 10000;
 }
 

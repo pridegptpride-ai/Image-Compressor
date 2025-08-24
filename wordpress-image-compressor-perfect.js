@@ -787,15 +787,29 @@
 
     if (filterButton && filterMenu) {
       filterButton.addEventListener('click', () => {
+        console.log('Filter button clicked');
+        console.log('Filter menu:', filterMenu);
+        console.log('Filter menu classes:', filterMenu.className);
+        
         const expanded = filterButton.getAttribute('aria-expanded') === 'true';
         filterButton.setAttribute('aria-expanded', !expanded);
-        filterMenu.hidden = expanded;
+        
+        if (expanded) {
+          filterMenu.classList.remove('show');
+          console.log('Removed show class');
+        } else {
+          filterMenu.classList.add('show');
+          console.log('Added show class');
+        }
+        
+        console.log('Filter menu classes after:', filterMenu.className);
+        console.log('Filter menu display:', getComputedStyle(filterMenu).display);
       });
       
       // Close filter menu when clicking outside
       document.addEventListener('click', (e) => {
         if (!filterButton.contains(e.target) && !filterMenu.contains(e.target)) {
-          filterMenu.hidden = true;
+          filterMenu.classList.remove('show');
           filterButton.setAttribute('aria-expanded', 'false');
         }
       });
@@ -806,8 +820,8 @@
         if (!e.target.matches('.wp-menu-item')) return;
         
         const sort = e.target.dataset.sort;
-        filterMenu.hidden = true;
-        if (filterButton) filterButton.setAttribute('aria-expanded', 'false');
+        filterMenu.classList.remove('show');
+        filterButton.setAttribute('aria-expanded', 'false');
         
         // Sort images
         if (sort === 'az') {

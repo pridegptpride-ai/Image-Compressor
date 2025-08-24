@@ -20,14 +20,14 @@
         Compress All
       </button>
       <div class="wp-filter-group">
-        <button id="wp-icon-filter" class="wp-icon-btn wp-danger" type="button" title="Filter" aria-haspopup="menu" aria-expanded="false" aria-controls="wp-filter-menu" aria-label="Filter">
+        <button id="wp-icon-filter" class="wp-icon-btn wp-outline" type="button" title="Filter" aria-haspopup="menu" aria-expanded="false" aria-controls="wp-filter-menu" aria-label="Filter">
           Filter
         </button>
-        <div id="wp-filter-menu" class="wp-filter-menu" role="menu" hidden>
-          <button class="wp-menu-item" role="menuitem" data-sort="az">Name A → Z</button>
-          <button class="wp-menu-item" role="menuitem" data-sort="za">Name Z → A</button>
-          <button class="wp-menu-item" role="menuitem" data-sort="big">Biggest First</button>
-          <button class="wp-menu-item" role="menuitem" data-sort="small">Smallest First</button>
+        <div id="wp-filter-menu" class="wp-filter-menu" role="menu">
+          <div class="wp-menu-item" data-sort="az">A-Z</div>
+          <div class="wp-menu-item" data-sort="za">Z-A</div>
+          <div class="wp-menu-item" data-sort="big">Biggest First</div>
+          <div class="wp-menu-item" data-sort="small">Smallest First</div>
         </div>
       </div>
       <button id="wp-download-all" class="wp-btn wp-secondary wp-small" type="button" title="Download All" aria-label="Download All" disabled>Download All</button>
