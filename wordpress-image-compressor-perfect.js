@@ -105,6 +105,14 @@
       return `${reduction.toFixed(1)}% smaller`; 
     }
 
+    function formatStats(originalBytes, compressedBytes) {
+      if (!originalBytes || !compressedBytes) return '—';
+      const original = formatBytes(originalBytes);
+      const compressed = formatBytes(compressedBytes);
+      const reduction = computeReduction(originalBytes, compressedBytes);
+      return `${reduction} • ${original} → ${compressed}`;
+    }
+
     function toast(message) { 
       const div = document.createElement('div'); 
       div.textContent = message; 
@@ -257,7 +265,7 @@
       
       if (overlayImg) overlayImg.src = item.cachedCompressed.url;
       if (compressedMeta) compressedMeta.textContent = formatBytes(compressed.size);
-      if (statsEl) statsEl.textContent = computeReduction(item.originalBytes, compressed.size);
+      if (statsEl) statsEl.textContent = formatStats(item.originalBytes, compressed.size);
       
       toggleFrame(false);
     }

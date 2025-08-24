@@ -337,6 +337,9 @@
   z-index: 10;
   font-size: 14px;
   font-weight: bold;
+  line-height: 1;
+  padding: 0;
+  margin: 0;
 }
 
 .wp-image-card .wp-remove:hover {
@@ -651,6 +654,7 @@
   max-height: 90vh;
   overflow-y: auto;
   z-index: 10000;
+  margin: 0;
 }
 
 .wp-modal::backdrop {
