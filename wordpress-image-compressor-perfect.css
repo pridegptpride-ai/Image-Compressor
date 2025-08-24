@@ -69,7 +69,7 @@
 /* Controls */
 .wp-controls {
   display: flex;
-  gap: 12px;
+  gap: 15px;
   flex-wrap: wrap;
   margin-bottom: 12px;
   justify-content: flex-start;
@@ -79,7 +79,7 @@
 /* Icon Bar */
 .wp-icon-bar {
   display: flex;
-  gap: 12px;
+  gap: 15px;
   flex-wrap: wrap;
   margin-bottom: 12px;
   justify-content: flex-start;
@@ -102,7 +102,7 @@
   .wp-top-controls { 
     justify-content: flex-start;
     align-items: center;
-    gap: 8px;
+    gap: 15px;
     flex-direction: row !important;
   }
 }
@@ -111,7 +111,7 @@
   .wp-top-controls { 
     justify-content: flex-start;
     align-items: center;
-    gap: 8px;
+    gap: 15px;
     flex-direction: row !important;
   }
 }
@@ -121,7 +121,7 @@
   .wp-top-controls { 
     flex-direction: row !important;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 12px;
     align-items: center;
     justify-content: flex-start;
     margin-bottom: 8px;
@@ -137,7 +137,7 @@
   .wp-top-controls { 
     flex-direction: row !important;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
     align-items: center;
     justify-content: flex-start;
     margin-bottom: 6px;
@@ -1000,7 +1000,7 @@
 /* Responsive controls */
 @media (max-width: 768px) {
   .wp-controls, .wp-icon-bar { 
-    gap: 8px;
+    gap: 12px;
     margin-bottom: 8px;
     align-items: center;
   }
@@ -1008,7 +1008,7 @@
 
 @media (max-width: 480px) {
   .wp-controls, .wp-icon-bar { 
-    gap: 6px;
+    gap: 10px;
     margin-bottom: 6px;
     align-items: center;
   }
