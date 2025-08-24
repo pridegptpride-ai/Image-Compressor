@@ -107,9 +107,18 @@
 
     function formatStats(originalBytes, compressedBytes) {
       if (!originalBytes || !compressedBytes) return '—';
+      
       const original = formatBytes(originalBytes);
       const compressed = formatBytes(compressedBytes);
       const reduction = computeReduction(originalBytes, compressedBytes);
+      
+      // Enhanced stats for large images
+      if (originalBytes > 1024 * 1024) { // Over 1MB
+        const originalMB = (originalBytes / (1024 * 1024)).toFixed(2);
+        const compressedKB = (compressedBytes / 1024).toFixed(1);
+        return `${reduction} • ${originalMB}MB → ${compressedKB}KB`;
+      }
+      
       return `${reduction} • ${original} → ${compressed}`;
     }
 
@@ -202,10 +211,58 @@
     }
 
     async function compressFile(file, qualityPercent) {
-      // Always compress, even at 100% quality, to reduce file size
+      // Enhanced compression for large images - always compress, even at 100% quality
       const bitmap = await createImageBitmap(file);
       try {
         const isPng = file.type.includes('png');
+        const originalSize = file.size;
+        
+        // For very large images (over 1MB), use aggressive compression strategies
+        if (originalSize > 1024 * 1024) {
+          // Try multiple compression strategies for large images
+          let bestBlob = null;
+          let bestSize = originalSize;
+          
+          // Strategy 1: PNG with aggressive optimization
+          if (isPng) {
+            const pngBlob = await compressBitmapToMime(bitmap, 95, 'image/png');
+            if (pngBlob && pngBlob.size < bestSize) {
+              bestBlob = pngBlob;
+              bestSize = pngBlob.size;
+            }
+          }
+          
+          // Strategy 2: JPEG with high quality but optimized
+          const jpegBlob = await compressBitmapToMime(bitmap, Math.min(qualityPercent, 95), 'image/jpeg');
+          if (jpegBlob && jpegBlob.size < bestSize) {
+            bestBlob = jpegBlob;
+            bestSize = jpegBlob.size;
+          }
+          
+          // Strategy 3: WebP if supported (better compression)
+          try {
+            const webpBlob = await compressBitmapToMime(bitmap, Math.min(qualityPercent, 90), 'image/webp');
+            if (webpBlob && webpBlob.size < bestSize) {
+              bestBlob = webpBlob;
+              bestSize = webpBlob.size;
+            }
+          } catch (e) {
+            // WebP not supported, continue with other formats
+          }
+          
+          // Strategy 4: Progressive JPEG for very large images
+          if (originalSize > 5 * 1024 * 1024) {
+            const progressiveJpeg = await compressBitmapToMime(bitmap, Math.min(qualityPercent, 85), 'image/jpeg');
+            if (progressiveJpeg && progressiveJpeg.size < bestSize) {
+              bestBlob = progressiveJpeg;
+              bestSize = progressiveJpeg.size;
+            }
+          }
+          
+          if (bestBlob) {
+            return bestBlob;
+          }
+        }
         
         // At 100% quality, try multiple compression strategies for best file size
         if (qualityPercent >= 100) {
@@ -213,14 +270,14 @@
           if (isPng) {
             const pngBlob = await compressBitmapToMime(bitmap, 100, 'image/png');
             // If PNG is smaller, use it
-            if (pngBlob && pngBlob.size < file.size) {
+            if (pngBlob && pngBlob.size < originalSize) {
               return pngBlob;
             }
           }
           
           // Try JPEG at 100% quality for better compression
           const jpegBlob = await compressBitmapToMime(bitmap, 100, 'image/jpeg');
-          if (jpegBlob && jpegBlob.size < file.size) {
+          if (jpegBlob && jpegBlob.size < originalSize) {
             return jpegBlob;
           }
           
@@ -229,8 +286,24 @@
           return processedBlob;
         }
         
-        // Regular compression based on quality
+        // Regular compression based on quality with enhanced algorithms
         const mime = isPng ? 'image/png' : 'image/jpeg';
+        
+        // For large images, use progressive compression
+        if (originalSize > 2 * 1024 * 1024) {
+          // Try multiple quality levels to find optimal compression
+          const qualityLevels = [qualityPercent, qualityPercent - 5, qualityPercent - 10];
+          
+          for (const quality of qualityLevels) {
+            if (quality < 10) break;
+            
+            const blob = await compressBitmapToMime(bitmap, quality, mime);
+            if (blob && blob.size < originalSize * 0.8) { // At least 20% reduction
+              return blob;
+            }
+          }
+        }
+        
         const blob = await compressBitmapToMime(bitmap, qualityPercent, mime);
         return blob;
       } finally {
@@ -295,8 +368,10 @@
       if (baseImg) baseImg.src = item.url;
       if (originalMeta) originalMeta.textContent = formatBytes(item.originalBytes);
       
-      // Show processing
-      showProcessing('Compressing...');
+      // Show processing with appropriate message for large images
+      const isLargeImage = item.originalBytes > 1024 * 1024; // Over 1MB
+      const message = isLargeImage ? 'Compressing large image...' : 'Compressing...';
+      showProcessing(message);
       
       // Always compress the image to show stats
       const quality = qualityRange ? parseInt(qualityRange.value) : 100;

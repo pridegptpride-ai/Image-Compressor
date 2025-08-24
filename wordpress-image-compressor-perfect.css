@@ -103,7 +103,7 @@
   padding: 10px 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.1s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition: all 0.2s ease;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
   font-family: inherit;
   font-size: 14px;
@@ -113,7 +113,8 @@
 }
 
 .wp-btn:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .wp-btn:active {
@@ -127,6 +128,7 @@
 
 .wp-btn.primary:hover {
   background: #5a00cb;
+  box-shadow: 0 6px 20px rgba(99, 0, 226, 0.4);
 }
 
 .wp-btn.secondary {
@@ -136,6 +138,7 @@
 
 .wp-btn.secondary:hover {
   background: #7b39d5;
+  box-shadow: 0 6px 20px rgba(142, 67, 240, 0.4);
 }
 
 .wp-btn.ghost {
@@ -145,6 +148,7 @@
 
 .wp-btn.ghost:hover {
   background: #efeff7;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .wp-btn.danger {
@@ -154,6 +158,7 @@
 
 .wp-btn.danger:hover {
   background: #e63939;
+  box-shadow: 0 6px 20px rgba(255, 77, 79, 0.4);
 }
 
 .wp-btn.small {
@@ -189,6 +194,8 @@
 
 .wp-icon-btn:hover {
   background: #efeff7;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .wp-icon-btn.outline {
@@ -201,6 +208,8 @@
   border-color: var(--secondary);
   color: var(--secondary);
   background: rgba(142, 67, 240, 0.06);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(142, 67, 240, 0.15);
 }
 
 /* Specific top margin for apply-max and reset-tool buttons */
@@ -256,6 +265,7 @@
   padding: 6px;
 }
 
+/* Filter Menu Items - Simple text weight */
 .wp-menu-item {
   width: 100%;
   text-align: left;
@@ -267,12 +277,14 @@
   color: var(--text);
   font-family: inherit;
   font-size: 14px;
-  transition: background 0.2s ease;
+  font-weight: 400;
+  transition: all 0.2s ease;
 }
 
 .wp-menu-item:hover {
   background: rgba(99, 0, 226, 0.06);
   color: var(--primary);
+  transform: translateX(4px);
 }
 
 /* Empty State */
@@ -398,6 +410,11 @@
   font-family: inherit;
   text-transform: capitalize;
   letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+}
+
+.wp-image-card .wp-image-action-btn:hover {
+  transform: translateY(-2px);
 }
 
 .wp-image-card .wp-copy-btn {
@@ -407,7 +424,7 @@
 
 .wp-image-card .wp-copy-btn:hover {
   background: #7b39d5;
-  box-shadow: 0 4px 16px rgba(142, 67, 240, 0.4);
+  box-shadow: 0 6px 20px rgba(142, 67, 240, 0.5);
 }
 
 .wp-image-card .wp-download-btn {
@@ -417,7 +434,7 @@
 
 .wp-image-card .wp-download-btn:hover {
   background: #5a00cb;
-  box-shadow: 0 4px 16px rgba(99, 0, 226, 0.4);
+  box-shadow: 0 6px 20px rgba(99, 0, 226, 0.5);
 }
 
 .wp-image-card .wp-image-action-btn:active {
