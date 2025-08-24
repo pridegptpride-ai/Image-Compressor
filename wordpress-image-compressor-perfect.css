@@ -18,6 +18,36 @@
   margin: 0 auto;
   padding: 24px;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  overflow-x: hidden; /* Prevent horizontal scrollbar */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Prevent horizontal overflow on all elements */
+.wp-main-grid,
+.wp-left-panel,
+.wp-right-panel,
+.wp-controls,
+.wp-icon-bar,
+.wp-top-controls,
+.wp-image-list,
+.wp-preview-area {
+  overflow-x: hidden;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Ensure image list doesn't cause horizontal scroll */
+.wp-image-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  max-height: 60vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .wp-intro {
@@ -933,10 +963,15 @@
   .wp-main-grid {
     grid-template-columns: 1fr;
     gap: 16px;
+    width: 100%;
+    max-width: 100%;
   }
   
   .wp-container {
     padding: 20px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
   
   .wp-intro {
@@ -955,12 +990,18 @@
   .wp-left-panel,
   .wp-right-panel {
     padding: 14px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 }
 
 @media (max-width: 768px) {
   .wp-container {
     padding: 16px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
   
   .wp-intro {
@@ -972,42 +1013,60 @@
   .wp-right-panel {
     padding: 12px;
     border-radius: 12px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
   
   .wp-compare-viewport {
     height: 280px;
+    width: 100%;
+    max-width: 100%;
   }
   
   .wp-image-list {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
   
   .wp-image-card .wp-image-actions {
     padding: 8px 12px;
     gap: 6px;
     min-height: 90px;
+    width: 100%;
+    max-width: 100%;
   }
   
   .wp-image-card .wp-image-action-btn {
     height: 32px;
     font-size: 11px;
+    flex-shrink: 0;
   }
   
   .wp-preview-area {
     padding: 10px;
     margin-top: 10px;
+    width: 100%;
+    max-width: 100%;
   }
   
   .wp-quality-controls {
     margin-top: 10px;
     padding: 6px 0;
+    width: 100%;
+    max-width: 100%;
   }
 }
 
 @media (max-width: 480px) {
   .wp-container {
     padding: 12px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
   
   .wp-intro {
@@ -1027,38 +1086,53 @@
   .wp-right-panel {
     padding: 8px;
     border-radius: 8px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
   
   .wp-image-list {
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     gap: 6px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
   
   .wp-image-card .wp-image-actions {
     padding: 6px 8px;
     gap: 4px;
     min-height: 80px;
+    width: 100%;
+    max-width: 100%;
   }
   
   .wp-image-card .wp-image-action-btn {
     height: 28px;
     font-size: 10px;
+    flex-shrink: 0;
   }
   
   .wp-preview-area {
     padding: 8px;
     margin-top: 8px;
+    width: 100%;
+    max-width: 100%;
   }
   
   .wp-quality-controls {
     margin-top: 8px;
     padding: 4px 0;
     gap: 8px;
+    width: 100%;
+    max-width: 100%;
   }
   
   .wp-meta-row {
     gap: 8px;
     margin-top: 6px;
+    width: 100%;
+    max-width: 100%;
   }
 }
 

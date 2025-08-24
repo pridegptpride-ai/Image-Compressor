@@ -175,9 +175,98 @@
       }, 3000); // Increased duration to 3 seconds for better visibility
     }
 
+    // Helper function to copy image URL to clipboard
+    function copyImageUrl(blob) {
+      try {
+        console.log('Attempting URL copy fallback...');
+        const url = URL.createObjectURL(blob);
+        const tempInput = document.createElement('input');
+        tempInput.value = url;
+        tempInput.style.position = 'absolute';
+        tempInput.style.left = '-9999px';
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        tempInput.setSelectionRange(0, 99999); // For mobile devices
+        
+        const success = document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        URL.revokeObjectURL(url);
+        
+        if (success) {
+          console.log('✅ Copy successful via URL fallback!');
+          toast('Image URL copied to clipboard!');
+        } else {
+          console.log('❌ URL copy failed, downloading instead...');
+          downloadImage(blob);
+        }
+      } catch (err) {
+        console.error('❌ URL copy error:', err);
+        downloadImage(blob);
+      }
+    }
+    
+    // Helper function to download image as fallback
+    function downloadImage(blob) {
+      try {
+        console.log('Downloading image as final fallback...');
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `image-${Date.now()}.${blob.type.split('/')[1]}`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        toast('Copy failed, image downloaded instead');
+      } catch (err) {
+        console.error('❌ Download failed:', err);
+        toast('Copy and download both failed');
+      }
+    }
+
+    // Test clipboard API functionality
+    function testClipboardAPI() {
+      console.log('=== TESTING CLIPBOARD API ===');
+      console.log('navigator.clipboard exists:', !!navigator.clipboard);
+      console.log('navigator.clipboard.write exists:', !!(navigator.clipboard && navigator.clipboard.write));
+      console.log('navigator.clipboard.read exists:', !!(navigator.clipboard && navigator.clipboard.read));
+      
+      if (navigator.clipboard && navigator.clipboard.write) {
+        // Test with simple text
+        navigator.clipboard.writeText('Clipboard test').then(() => {
+          console.log('✅ Text clipboard API working!');
+          
+          // Test reading back the text
+          setTimeout(() => {
+            navigator.clipboard.readText().then(text => {
+              console.log('✅ Clipboard read working! Content:', text);
+            }).catch(err => {
+              console.log('❌ Clipboard read failed:', err);
+            });
+          }, 100);
+        }).catch(err => {
+          console.log('❌ Text clipboard API failed:', err);
+        });
+      }
+      
+      // Test execCommand
+      const testInput = document.createElement('input');
+      testInput.value = 'execCommand test';
+      testInput.style.position = 'absolute';
+      testInput.style.left = '-9999px';
+      document.body.appendChild(testInput);
+      testInput.select();
+      const execSuccess = document.execCommand('copy');
+      document.body.removeChild(testInput);
+      console.log('execCommand copy available:', execSuccess);
+    }
+
     // Test toast function on page load
     document.addEventListener('DOMContentLoaded', () => {
-      console.log('DOM loaded, testing toast function');
+      console.log('DOM loaded, testing functions...');
+      
+      // Test clipboard API
+      setTimeout(() => {
+        testClipboardAPI();
+      }, 500);
+      
       // Test toast after a short delay
       setTimeout(() => {
         console.log('Testing toast function...');
@@ -792,32 +881,31 @@
         const quality = parseInt(qualityRange.value);
 
         if (action === 'copy') {
+          console.log('=== COPY ACTION STARTED ===');
           try {
-            console.log('Copy action triggered'); // Debug log
             const compressed = await ensureCompressed(item, quality);
-            console.log('Image compressed, attempting to copy'); // Debug log
+            console.log('Image compressed successfully:', compressed);
             
-            // Try modern clipboard API first
+            // Method 1: Try modern clipboard API
             if (navigator.clipboard && navigator.clipboard.write) {
               try {
-                console.log('Using modern clipboard API'); // Debug log
-                await navigator.clipboard.write([
-                  new ClipboardItem({
-                    [compressed.blob.type]: compressed.blob
-                  })
-                ]);
-                console.log('Copy successful via modern API'); // Debug log
+                console.log('Attempting modern clipboard API...');
+                const clipboardItem = new ClipboardItem({
+                  [compressed.blob.type]: compressed.blob
+                });
+                
+                await navigator.clipboard.write([clipboardItem]);
+                console.log('✅ Copy successful via modern clipboard API!');
                 toast('Image copied to clipboard successfully!');
-                return; // Success, exit early
+                return;
               } catch (clipboardErr) {
-                console.log('Modern clipboard failed, trying fallback:', clipboardErr);
+                console.log('❌ Modern clipboard failed:', clipboardErr);
               }
             }
             
-            // Fallback: Try to copy image data to clipboard
+            // Method 2: Canvas-based copy
             try {
-              console.log('Using fallback copy method'); // Debug log
-              // Create a canvas and draw the image
+              console.log('Attempting canvas-based copy...');
               const canvas = document.createElement('canvas');
               const ctx = canvas.getContext('2d');
               const img = new Image();
@@ -828,7 +916,6 @@
                 ctx.drawImage(img, 0, 0);
                 
                 try {
-                  // Try to copy the canvas as image
                   canvas.toBlob(async (blob) => {
                     if (navigator.clipboard && navigator.clipboard.write) {
                       try {
@@ -837,63 +924,33 @@
                             [blob.type]: blob
                           })
                         ]);
-                        console.log('Copy successful via canvas fallback'); // Debug log
+                        console.log('✅ Copy successful via canvas method!');
                         toast('Image copied to clipboard successfully!');
                       } catch (err) {
-                        console.error('Canvas clipboard failed:', err);
-                        // Final fallback: copy image URL
-                        const url = URL.createObjectURL(blob);
-                        const tempInput = document.createElement('input');
-                        tempInput.value = url;
-                        document.body.appendChild(tempInput);
-                        tempInput.select();
-                        document.execCommand('copy');
-                        document.body.removeChild(tempInput);
-                        URL.revokeObjectURL(url);
-                        console.log('Copy successful via URL fallback'); // Debug log
-                        toast('Image URL copied to clipboard!');
+                        console.log('❌ Canvas clipboard failed:', err);
+                        // Fallback to URL copy
+                        copyImageUrl(blob);
                       }
                     } else {
-                      // Final fallback: copy image URL
-                      const url = URL.createObjectURL(blob);
-                      const tempInput = document.createElement('input');
-                      tempInput.value = url;
-                      document.body.appendChild(tempInput);
-                      tempInput.select();
-                      document.execCommand('copy');
-                      document.body.removeChild(tempInput);
-                      URL.revokeObjectURL(url);
-                      console.log('Copy successful via URL fallback'); // Debug log
-                      toast('Image URL copied to clipboard!');
+                      // Fallback to URL copy
+                      copyImageUrl(blob);
                     }
                   }, compressed.blob.type);
                 } catch (err) {
-                  console.error('Canvas copy failed:', err);
-                  toast('Copy failed, image downloaded instead');
-                  // Download as final fallback
-                  const link = document.createElement('a');
-                  link.href = URL.createObjectURL(compressed.blob);
-                  link.download = item.name.replace(/(\.[^.]+)$/, '-compressed$1');
-                  link.click();
-                  URL.revokeObjectURL(link.href);
+                  console.error('❌ Canvas toBlob failed:', err);
+                  copyImageUrl(compressed.blob);
                 }
               };
               
               img.src = URL.createObjectURL(compressed.blob);
               
             } catch (fallbackErr) {
-              console.error('Fallback copy failed:', fallbackErr);
-              toast('Copy failed, image downloaded instead');
-              // Download as final fallback
-              const link = document.createElement('a');
-              link.href = URL.createObjectURL(compressed.blob);
-              link.download = item.name.replace(/(\.[^.]+)$/, '-compressed$1');
-              link.click();
-              URL.revokeObjectURL(link.href);
+              console.error('❌ Canvas method failed:', fallbackErr);
+              copyImageUrl(compressed.blob);
             }
             
           } catch (err) {
-            console.error('Copy error:', err);
+            console.error('❌ Copy error:', err);
             toast('Failed to copy image');
           }
         } else if (action === 'download') {
