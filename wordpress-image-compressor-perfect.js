@@ -134,6 +134,7 @@
     }
 
     function toast(message) { 
+      console.log('Toast message:', message); // Debug log
       const div = document.createElement('div'); 
       div.textContent = message; 
       div.style.position = 'fixed'; 
@@ -148,8 +149,16 @@
       div.style.zIndex = '9999'; 
       div.style.fontFamily = 'inherit';
       div.style.fontSize = '14px';
+      div.style.fontWeight = '600';
+      div.style.whiteSpace = 'nowrap';
+      div.style.minWidth = '200px';
+      div.style.textAlign = 'center';
       document.body.appendChild(div); 
-      setTimeout(() => div.remove(), 1800); 
+      console.log('Toast element created and added to DOM'); // Debug log
+      setTimeout(() => {
+        div.remove();
+        console.log('Toast element removed from DOM'); // Debug log
+      }, 3000); // Increased duration to 3 seconds for better visibility
     }
 
     function setEmptyState() { 
@@ -761,7 +770,7 @@
                     [compressed.blob.type]: compressed.blob
                   })
                 ]);
-                toast('Image copied to clipboard');
+                toast('Image copied to clipboard successfully!');
                 return; // Success, exit early
               } catch (clipboardErr) {
                 console.log('Modern clipboard failed, trying fallback:', clipboardErr);
@@ -789,7 +798,7 @@
                           [blob.type]: blob
                         })
                       ]);
-                      toast('Image copied to clipboard');
+                      toast('Image copied to clipboard successfully!');
                     } else {
                       // Final fallback: copy image URL
                       const url = URL.createObjectURL(blob);
@@ -800,7 +809,7 @@
                       document.execCommand('copy');
                       document.body.removeChild(tempInput);
                       URL.revokeObjectURL(url);
-                      toast('Image URL copied to clipboard');
+                      toast('Image URL copied to clipboard!');
                     }
                   }, compressed.blob.type);
                 } catch (err) {
