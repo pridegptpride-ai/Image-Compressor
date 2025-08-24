@@ -34,7 +34,6 @@
     const filterButton = document.getElementById('wp-icon-filter');
     const filterMenu = document.getElementById('wp-filter-menu');
     const resetToolBtn = document.getElementById('wp-reset-tool');
-    const testRenderBtn = document.getElementById('wp-test-render');
 
     const fileInput = document.getElementById('wp-file-input');
     const imageListEl = document.getElementById('wp-image-list');
@@ -284,7 +283,7 @@
       if (originalMeta) originalMeta.textContent = `${item.name} • ${formatBytes(item.originalBytes)}`; 
       toggleFrame(false); 
       
-      const quality = qualityRange ? parseInt(qualityRange.value, 10) : 100; 
+      const quality = qualityRange ? parseInt(qualityRange.value, 10) : 50; 
       const c = await ensureCompressed(item, quality); 
       
       if (overlayImg) overlayImg.src = c.url; 
@@ -299,47 +298,48 @@
     }
 
     function renderList() {
-      console.log('renderList called with', images.length, 'images');
-      
       // Clear the list completely to prevent duplicate buttons
       if (imageListEl) {
         imageListEl.innerHTML = '';
-        console.log('Cleared image list');
       }
       
       if (images.length === 0) {
-        console.log('No images to render');
         return;
       }
       
       images.forEach((item, index) => {
-        console.log(`Rendering image ${index + 1}:`, item.name);
-        
-        // Create a simple test card first to see if basic rendering works
-        const testCard = document.createElement('div');
-        testCard.className = 'wp-image-card';
-        testCard.dataset.id = item.id;
-        testCard.style.border = '2px solid red';
-        testCard.innerHTML = `
-          <div style="padding: 10px; text-align: center;">
-            <strong>${item.name}</strong><br>
-            <small>${formatBytes(item.originalBytes)}</small>
-          </div>
-        `;
-        
+        // Use the proper template structure as in original
+        const node = template.content.cloneNode(true);
+        const card = node.querySelector('.wp-image-card');
+        const thumb = node.querySelector('.wp-thumb');
+        const remove = node.querySelector('.wp-remove');
+
+        if (!card || !thumb || !remove) {
+          console.error('Template elements not found:', { card, thumb, remove });
+          return;
+        }
+
+        card.dataset.id = item.id;
+        thumb.src = item.url;
+        thumb.alt = item.name;
+
         // Add click handler for image selection
-        testCard.addEventListener('click', () => {
-          console.log('Card clicked:', item.id);
+        card.addEventListener('click', () => {
           selectImage(item.id);
         });
-        
+
+        // Add remove button handler
+        remove.addEventListener('click', (e) => {
+          e.stopPropagation();
+          pendingDeleteAll = false;
+          pendingDeleteId = item.id;
+          if (confirmModal) confirmModal.showModal();
+        });
+
         if (imageListEl) {
-          imageListEl.appendChild(testCard);
-          console.log('Added test card to list');
+          imageListEl.appendChild(node);
         }
       });
-      
-      console.log('renderList completed. imageListEl children count:', imageListEl ? imageListEl.children.length : 'N/A');
     }
 
     function setEmptyAndRender() { 
@@ -350,7 +350,7 @@
     }
 
     function syncQualityInputs(val) { 
-      const v = Math.max(1, Math.min(100, parseInt(val || '100', 10))); 
+      const v = Math.max(1, Math.min(100, parseInt(val || '50', 10))); 
       if (qualityRange) qualityRange.value = String(v); 
       if (qualityValueInput) qualityValueInput.value = String(v); 
       
@@ -379,7 +379,6 @@
         const files = Array.from(e.target.files);
         if (files.length === 0) return;
 
-        console.log('Files selected:', files.length);
         showProcessing('Uploading...');
 
         for (const file of files) {
@@ -397,11 +396,9 @@
             type: file.type
           };
           
-          console.log('Adding image:', imageItem);
           images.push(imageItem);
         }
 
-        console.log('Total images after upload:', images.length);
         hideProcessing();
         setEmptyAndRender(); // This will auto-select the last uploaded image
         fileInput.value = '';
@@ -483,31 +480,6 @@
       resetToolBtn.addEventListener('click', () => {
         pendingReset = true;
         if (confirmModal) confirmModal.showModal();
-      });
-    }
-
-    if (testRenderBtn) {
-      testRenderBtn.addEventListener('click', () => {
-        console.log('Test button clicked');
-        console.log('Current images array:', images);
-        console.log('imageListEl:', imageListEl);
-        console.log('template:', template);
-        
-        // Add a test image if none exist
-        if (images.length === 0) {
-          const testImage = {
-            id: 'test-123',
-            file: null,
-            url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2Y0ZjRmNCIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjNjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+VGVzdCBJbWFnZTwvdGV4dD48L3N2Zz4=',
-            originalBytes: 1024,
-            name: 'test-image.png',
-            type: 'image/png'
-          };
-          images.push(testImage);
-          console.log('Added test image, total images:', images.length);
-        }
-        
-        renderList();
       });
     }
 
@@ -607,10 +579,10 @@
           setEmptyState();
           clearPreview();
           
-          // Reset quality to 100%
-          if (qualityRange) qualityRange.value = 100;
-          if (qualityValueInput) qualityValueInput.value = 100;
-          syncQualityInputs(100);
+          // Reset quality to 50%
+          if (qualityRange) qualityRange.value = 50;
+          if (qualityValueInput) qualityValueInput.value = 50;
+          syncQualityInputs(50);
           
           // Clear max size
           if (maxSizeInput) maxSizeInput.value = '';
@@ -760,7 +732,7 @@
 
     // Initialize
     setEmptyState();
-    syncQualityInputs(100);
+    syncQualityInputs(50);
     
     console.log('WordPress Image Compressor: Initialized successfully with all original features');
   });
