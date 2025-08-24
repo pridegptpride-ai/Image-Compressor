@@ -34,6 +34,7 @@
     const filterButton = document.getElementById('wp-icon-filter');
     const filterMenu = document.getElementById('wp-filter-menu');
     const resetToolBtn = document.getElementById('wp-reset-tool');
+    const testRenderBtn = document.getElementById('wp-test-render');
 
     const fileInput = document.getElementById('wp-file-input');
     const imageListEl = document.getElementById('wp-image-list');
@@ -66,8 +67,14 @@
     // Check if all required elements exist
     if (!iconAdd || !imageListEl || !template) {
       console.log('WordPress Image Compressor: Required elements not found');
+      console.log('iconAdd:', iconAdd);
+      console.log('imageListEl:', imageListEl);
+      console.log('template:', template);
       return;
     }
+
+    console.log('Template content:', template.content);
+    console.log('Template first child:', template.content.firstElementChild);
 
     /** State */
     /** @type {{id:string, file:File, url:string, originalBytes:number, name:string, type:string, cachedCompressed?:{quality:number, blob:Blob, url:string}}[]} */
@@ -292,37 +299,47 @@
     }
 
     function renderList() {
-      // Clear the list completely to prevent duplicate buttons
-      if (imageListEl) imageListEl.replaceChildren();
+      console.log('renderList called with', images.length, 'images');
       
-      images.forEach(item => {
-        const node = template.content.firstElementChild.cloneNode(true);
-        const card = node.querySelector('.wp-image-card');
-        const thumb = node.querySelector('.wp-thumb');
-        const remove = node.querySelector('.wp-remove');
-
-        if (!card || !thumb || !remove) {
-          console.error('Template elements not found:', { card, thumb, remove });
-          return;
-        }
-
-        card.dataset.id = item.id;
-        thumb.src = item.url;
-        thumb.alt = item.name;
-
+      // Clear the list completely to prevent duplicate buttons
+      if (imageListEl) {
+        imageListEl.innerHTML = '';
+        console.log('Cleared image list');
+      }
+      
+      if (images.length === 0) {
+        console.log('No images to render');
+        return;
+      }
+      
+      images.forEach((item, index) => {
+        console.log(`Rendering image ${index + 1}:`, item.name);
+        
+        // Create a simple test card first to see if basic rendering works
+        const testCard = document.createElement('div');
+        testCard.className = 'wp-image-card';
+        testCard.dataset.id = item.id;
+        testCard.style.border = '2px solid red';
+        testCard.innerHTML = `
+          <div style="padding: 10px; text-align: center;">
+            <strong>${item.name}</strong><br>
+            <small>${formatBytes(item.originalBytes)}</small>
+          </div>
+        `;
+        
         // Add click handler for image selection
-        card.addEventListener('click', () => selectImage(item.id));
-
-        // Add remove button handler
-        remove.addEventListener('click', (e) => {
-          e.stopPropagation();
-          pendingDeleteAll = false;
-          pendingDeleteId = item.id;
-          if (confirmModal) confirmModal.showModal();
+        testCard.addEventListener('click', () => {
+          console.log('Card clicked:', item.id);
+          selectImage(item.id);
         });
-
-        if (imageListEl) imageListEl.appendChild(node);
+        
+        if (imageListEl) {
+          imageListEl.appendChild(testCard);
+          console.log('Added test card to list');
+        }
       });
+      
+      console.log('renderList completed. imageListEl children count:', imageListEl ? imageListEl.children.length : 'N/A');
     }
 
     function setEmptyAndRender() { 
@@ -362,6 +379,7 @@
         const files = Array.from(e.target.files);
         if (files.length === 0) return;
 
+        console.log('Files selected:', files.length);
         showProcessing('Uploading...');
 
         for (const file of files) {
@@ -370,16 +388,20 @@
           const id = generateId();
           const url = URL.createObjectURL(file);
           
-          images.push({
+          const imageItem = {
             id,
             file,
             url,
             originalBytes: file.size,
             name: file.name,
             type: file.type
-          });
+          };
+          
+          console.log('Adding image:', imageItem);
+          images.push(imageItem);
         }
 
+        console.log('Total images after upload:', images.length);
         hideProcessing();
         setEmptyAndRender(); // This will auto-select the last uploaded image
         fileInput.value = '';
@@ -461,6 +483,31 @@
       resetToolBtn.addEventListener('click', () => {
         pendingReset = true;
         if (confirmModal) confirmModal.showModal();
+      });
+    }
+
+    if (testRenderBtn) {
+      testRenderBtn.addEventListener('click', () => {
+        console.log('Test button clicked');
+        console.log('Current images array:', images);
+        console.log('imageListEl:', imageListEl);
+        console.log('template:', template);
+        
+        // Add a test image if none exist
+        if (images.length === 0) {
+          const testImage = {
+            id: 'test-123',
+            file: null,
+            url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2Y0ZjRmNCIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjNjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+VGVzdCBJbWFnZTwvdGV4dD48L3N2Zz4=',
+            originalBytes: 1024,
+            name: 'test-image.png',
+            type: 'image/png'
+          };
+          images.push(testImage);
+          console.log('Added test image, total images:', images.length);
+        }
+        
+        renderList();
       });
     }
 
