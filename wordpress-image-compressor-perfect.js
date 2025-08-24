@@ -107,19 +107,10 @@
 
     function formatStats(originalBytes, compressedBytes) {
       if (!originalBytes || !compressedBytes) return '—';
-      
       const original = formatBytes(originalBytes);
       const compressed = formatBytes(compressedBytes);
       const reduction = computeReduction(originalBytes, compressedBytes);
-      
-      // Enhanced stats for large images
-      if (originalBytes > 1024 * 1024) { // Over 1MB
-        const originalMB = (originalBytes / (1024 * 1024)).toFixed(2);
-        const compressedKB = (compressedBytes / 1024).toFixed(1);
-        return `${reduction} • ${originalMB}MB → ${compressedKB}KB`;
-      }
-      
-      return `${reduction} • ${original} → ${compressed}`;
+      return `${reduction} • Original: ${original} → Compressed: ${compressed}`;
     }
 
     // Smooth stats animation
@@ -188,7 +179,7 @@
     // Processing functions
     function showProcessing(message) {
       if (processingEl && processingText) {
-        processingText.textContent = message;
+        processingText.textContent = message || 'Processing...';
         processingEl.style.display = 'flex';
       }
     }
@@ -199,70 +190,25 @@
       }
     }
 
+    // EXACTLY as in original tool
     async function compressBitmapToMime(bitmap, qualityPercent, mime) {
       prepareCanvas(bitmap.width, bitmap.height);
       sharedCtx.drawImage(bitmap, 0, 0);
       
       // For JPEG, use quality parameter; for PNG, always use maximum quality
+      // PNG compression is lossless and quality parameter doesn't affect file size
       const q = mime === 'image/jpeg' ? Math.min(Math.max(qualityPercent / 100, 0.01), 1) : 1;
       
       const blob = await new Promise(resolve => sharedCanvas.toBlob(resolve, mime, q));
       return blob;
     }
 
+    // EXACTLY as in original tool
     async function compressFile(file, qualityPercent) {
-      // Enhanced compression for large images - always compress, even at 100% quality
+      // Always compress, even at 100% quality, to reduce file size
       const bitmap = await createImageBitmap(file);
       try {
         const isPng = file.type.includes('png');
-        const originalSize = file.size;
-        
-        // For very large images (over 1MB), use aggressive compression strategies
-        if (originalSize > 1024 * 1024) {
-          // Try multiple compression strategies for large images
-          let bestBlob = null;
-          let bestSize = originalSize;
-          
-          // Strategy 1: PNG with aggressive optimization
-          if (isPng) {
-            const pngBlob = await compressBitmapToMime(bitmap, 95, 'image/png');
-            if (pngBlob && pngBlob.size < bestSize) {
-              bestBlob = pngBlob;
-              bestSize = pngBlob.size;
-            }
-          }
-          
-          // Strategy 2: JPEG with high quality but optimized
-          const jpegBlob = await compressBitmapToMime(bitmap, Math.min(qualityPercent, 95), 'image/jpeg');
-          if (jpegBlob && jpegBlob.size < bestSize) {
-            bestBlob = jpegBlob;
-            bestSize = jpegBlob.size;
-          }
-          
-          // Strategy 3: WebP if supported (better compression)
-          try {
-            const webpBlob = await compressBitmapToMime(bitmap, Math.min(qualityPercent, 90), 'image/webp');
-            if (webpBlob && webpBlob.size < bestSize) {
-              bestBlob = webpBlob;
-              bestSize = webpBlob.size;
-            }
-          } catch (e) {
-            // WebP not supported, continue with other formats
-          }
-          
-          // Strategy 4: Progressive JPEG for very large images
-          if (originalSize > 5 * 1024 * 1024) {
-            const progressiveJpeg = await compressBitmapToMime(bitmap, Math.min(qualityPercent, 85), 'image/jpeg');
-            if (progressiveJpeg && progressiveJpeg.size < bestSize) {
-              bestBlob = progressiveJpeg;
-              bestSize = progressiveJpeg.size;
-            }
-          }
-          
-          if (bestBlob) {
-            return bestBlob;
-          }
-        }
         
         // At 100% quality, try multiple compression strategies for best file size
         if (qualityPercent >= 100) {
@@ -270,61 +216,87 @@
           if (isPng) {
             const pngBlob = await compressBitmapToMime(bitmap, 100, 'image/png');
             // If PNG is smaller, use it
-            if (pngBlob && pngBlob.size < originalSize) {
+            if (pngBlob && pngBlob.size < file.size) {
               return pngBlob;
             }
           }
           
           // Try JPEG at 100% quality for better compression
           const jpegBlob = await compressBitmapToMime(bitmap, 100, 'image/jpeg');
-          if (jpegBlob && jpegBlob.size < originalSize) {
+          if (jpegBlob && jpegBlob.size < file.size) {
             return jpegBlob;
           }
           
-          // If no compression achieved, return original but processed through canvas
-          const processedBlob = await compressBitmapToMime(bitmap, 100, isPng ? 'image/png' : 'image/jpeg');
-          return processedBlob;
+          // If no compression achieved, return original
+          return file;
+        } else {
+          // For lower quality, use standard compression
+          const mimeType = isPng && qualityPercent < 100 ? 'image/jpeg' : (isPng ? 'image/png' : 'image/jpeg');
+          const blob = await compressBitmapToMime(bitmap, qualityPercent, mimeType);
+          return blob || file;
         }
-        
-        // Regular compression based on quality with enhanced algorithms
-        const mime = isPng ? 'image/png' : 'image/jpeg';
-        
-        // For large images, use progressive compression
-        if (originalSize > 2 * 1024 * 1024) {
-          // Try multiple quality levels to find optimal compression
-          const qualityLevels = [qualityPercent, qualityPercent - 5, qualityPercent - 10];
-          
-          for (const quality of qualityLevels) {
-            if (quality < 10) break;
-            
-            const blob = await compressBitmapToMime(bitmap, quality, mime);
-            if (blob && blob.size < originalSize * 0.8) { // At least 20% reduction
-              return blob;
-            }
-          }
-        }
-        
-        const blob = await compressBitmapToMime(bitmap, qualityPercent, mime);
-        return blob;
-      } finally {
-        bitmap.close();
+      } finally { 
+        try { 
+          bitmap.close && bitmap.close(); 
+        } catch {} 
       }
     }
 
+    // EXACTLY as in original tool
     async function ensureCompressed(item, quality) {
-      if (item.cachedCompressed && item.cachedCompressed.quality === quality) {
-        return item.cachedCompressed.blob;
-      }
+      // Use cache if same quality
+      if (item.cachedCompressed && item.cachedCompressed.quality === quality) return item.cachedCompressed;
       
-      const compressed = await compressFile(item.file, quality);
-      item.cachedCompressed = { quality, blob: compressed, url: URL.createObjectURL(compressed) };
-      return compressed;
+      showProcessing('Compressing image...');
+      const trial = await compressFile(item.file, quality);
+      hideProcessing();
+      
+      // Always use the compressed version, even if it's the same size
+      // This ensures consistent behavior and proper file format handling
+      const resultBlob = trial || item.file;
+      
+      if (item.cachedCompressed && item.cachedCompressed.url) URL.revokeObjectURL(item.cachedCompressed.url);
+      const url = URL.createObjectURL(resultBlob);
+      item.cachedCompressed = { quality, blob: resultBlob, url };
+      return item.cachedCompressed;
+    }
+
+    // EXACTLY as in original tool
+    function updateStats(item, compressedBlob) { 
+      if (compressedMeta) compressedMeta.textContent = `${item.name.replace(/(\.[^.]+)$/,'-compressed$1')} • ${formatBytes(compressedBlob.size)}`; 
+      if (statsEl) statsEl.textContent = `${computeReduction(item.originalBytes, compressedBlob.size)} • Original: ${formatBytes(item.originalBytes)} → Compressed: ${formatBytes(compressedBlob.size)}`; 
+    }
+
+    // EXACTLY as in original tool
+    async function selectImage(id) { 
+      selectedId = id; 
+      const item = getSelected(); 
+      if (!item) return; 
+      
+      if (baseImg) baseImg.src = item.url; 
+      if (originalMeta) originalMeta.textContent = `${item.name} • ${formatBytes(item.originalBytes)}`; 
+      toggleFrame(false); 
+      
+      const quality = qualityRange ? parseInt(qualityRange.value, 10) : 100; 
+      const c = await ensureCompressed(item, quality); 
+      
+      if (overlayImg) overlayImg.src = c.url; 
+      updateStats(item, c.blob); 
+      
+      // Update selection in UI
+      if (imageListEl) {
+        imageListEl.querySelectorAll('.wp-image-card').forEach(card => { 
+          card.classList.toggle('selected', card.dataset.id === id); 
+        }); 
+      }
     }
 
     function renderList() {
-      imageListEl.innerHTML = '';
+      // Clear the list completely to prevent duplicate buttons
+      if (imageListEl) imageListEl.replaceChildren();
+      
       images.forEach(item => {
-        const node = template.content.cloneNode(true);
+        const node = template.content.firstElementChild.cloneNode(true);
         const card = node.querySelector('.wp-image-card');
         const thumb = node.querySelector('.wp-thumb');
         const remove = node.querySelector('.wp-remove');
@@ -338,76 +310,44 @@
         thumb.src = item.url;
         thumb.alt = item.name;
 
-        remove.addEventListener('click', () => {
+        // Add click handler for image selection
+        card.addEventListener('click', () => selectImage(item.id));
+
+        // Add remove button handler
+        remove.addEventListener('click', (e) => {
+          e.stopPropagation();
+          pendingDeleteAll = false;
           pendingDeleteId = item.id;
           if (confirmModal) confirmModal.showModal();
         });
 
-        card.addEventListener('click', () => {
-          if (selectedId === item.id) return;
-          
-          // Remove previous selection
-          const prev = imageListEl.querySelector('.wp-image-card.selected');
-          if (prev) prev.classList.remove('selected');
-          
-          // Select new card
-          card.classList.add('selected');
-          selectedId = item.id;
-          
-          // Update preview
-          updatePreview(item);
-        });
-
-        imageListEl.appendChild(node);
+        if (imageListEl) imageListEl.appendChild(node);
       });
     }
 
-    async function updatePreview(item) {
-      if (!item) return;
-      
-      if (baseImg) baseImg.src = item.url;
-      if (originalMeta) originalMeta.textContent = formatBytes(item.originalBytes);
-      
-      // Show processing with appropriate message for large images
-      const isLargeImage = item.originalBytes > 1024 * 1024; // Over 1MB
-      const message = isLargeImage ? 'Compressing large image...' : 'Compressing...';
-      showProcessing(message);
-      
-      // Always compress the image to show stats
-      const quality = qualityRange ? parseInt(qualityRange.value) : 100;
-      const compressed = await ensureCompressed(item, quality);
-      
-      if (overlayImg) overlayImg.src = item.cachedCompressed.url;
-      if (compressedMeta) compressedMeta.textContent = formatBytes(compressed.size);
-      
-      // Animate stats update
-      if (statsEl) {
-        const currentStats = statsEl.textContent;
-        const newStats = formatStats(item.originalBytes, compressed.size);
-        animateStats(statsEl, currentStats, newStats);
-      }
-      
-      hideProcessing();
-      toggleFrame(false);
+    function setEmptyAndRender() { 
+      setEmptyState(); 
+      renderList(); 
+      if (images.length) selectImage(images[images.length - 1].id); 
+      else clearPreview(); 
     }
 
-    function syncQualityInputs() {
-      if (!qualityRange || !qualityValueInput) return;
-      
-      const value = qualityRange.value;
-      qualityValueInput.value = value;
+    function syncQualityInputs(val) { 
+      const v = Math.max(1, Math.min(100, parseInt(val || '100', 10))); 
+      if (qualityRange) qualityRange.value = String(v); 
+      if (qualityValueInput) qualityValueInput.value = String(v); 
       
       // Update percentage display
       const percentageEl = document.getElementById('wp-quality-percentage');
       if (percentageEl) {
-        percentageEl.textContent = value + '%';
+        percentageEl.textContent = v + '%';
       }
       
-      // Update preview if image is selected
-      const selected = getSelected();
-      if (selected) {
-        updatePreview(selected);
-      }
+      const current = getSelected(); 
+      if (current) ensureCompressed(current, v).then(c => { 
+        if (overlayImg) overlayImg.src = c.url; 
+        updateStats(current, c.blob); 
+      }); 
     }
 
     // Event Listeners
@@ -421,6 +361,8 @@
       fileInput.addEventListener('change', async (e) => {
         const files = Array.from(e.target.files);
         if (files.length === 0) return;
+
+        showProcessing('Uploading...');
 
         for (const file of files) {
           if (!file.type.startsWith('image/')) continue;
@@ -438,21 +380,11 @@
           });
         }
 
-        renderList();
-        setEmptyState();
+        hideProcessing();
+        setEmptyAndRender(); // This will auto-select the last uploaded image
         fileInput.value = '';
         
-        // Auto-select first image by default
-        if (images.length > 0) {
-          const firstCard = imageListEl.querySelector('.wp-image-card');
-          if (firstCard) {
-            firstCard.click();
-            selectedId = images[0].id;
-            await updatePreview(images[0]);
-          }
-        }
-        
-        toast(`Added ${files.length} image${files.length > 1 ? 's' : ''}`);
+        toast(`Uploaded ${files.length} image${files.length > 1 ? 's' : ''}`);
       });
     }
 
@@ -468,16 +400,18 @@
         if (!qualityRange) return;
         
         const quality = parseInt(qualityRange.value);
+        showProcessing('Downloading all...');
         
         for (const item of images) {
           const compressed = await ensureCompressed(item, quality);
           const link = document.createElement('a');
-          link.href = URL.createObjectURL(compressed);
-          link.download = `compressed_${item.name}`;
+          link.href = URL.createObjectURL(compressed.blob);
+          link.download = item.name.replace(/(\.[^.]+)$/, '-compressed$1');
           link.click();
           URL.revokeObjectURL(link.href);
         }
         
+        hideProcessing();
         toast(`Downloaded ${images.length} compressed image${images.length > 1 ? 's' : ''}`);
       });
     }
@@ -531,14 +465,13 @@
     }
 
     if (qualityRange) {
-      qualityRange.addEventListener('input', syncQualityInputs);
+      qualityRange.addEventListener('input', (e) => syncQualityInputs(e.target.value));
     }
 
     if (qualityValueInput) {
       qualityValueInput.addEventListener('input', () => {
-        if (!qualityRange) return;
-        qualityRange.value = qualityValueInput.value;
-        syncQualityInputs();
+        if (!qualityValueInput.value) return;
+        syncQualityInputs(qualityValueInput.value);
       });
     }
 
@@ -546,7 +479,7 @@
       applyMaxBtn.addEventListener('click', () => {
         const maxSize = parseInt(maxSizeInput.value);
         if (isNaN(maxSize) || maxSize < 1) {
-          toast('Please enter a valid file size');
+          toast('Enter valid KB');
           return;
         }
         
@@ -609,7 +542,7 @@
               if (firstCard) {
                 firstCard.click();
                 selectedId = images[0].id;
-                updatePreview(images[0]);
+                selectImage(images[0].id);
               }
             }
             
@@ -630,7 +563,7 @@
           // Reset quality to 100%
           if (qualityRange) qualityRange.value = 100;
           if (qualityValueInput) qualityValueInput.value = 100;
-          syncQualityInputs();
+          syncQualityInputs(100);
           
           // Clear max size
           if (maxSizeInput) maxSizeInput.value = '';
@@ -663,6 +596,8 @@
         const files = Array.from(e.dataTransfer.files);
         if (files.length === 0) return;
 
+        showProcessing('Uploading...');
+
         for (const file of files) {
           if (!file.type.startsWith('image/')) continue;
           
@@ -679,18 +614,8 @@
           });
         }
 
-        renderList();
-        setEmptyState();
-        
-        // Auto-select first image by default
-        if (images.length > 0) {
-          const firstCard = imageListEl.querySelector('.wp-image-card');
-          if (firstCard) {
-            firstCard.click();
-            selectedId = images[0].id;
-            await updatePreview(images[0]);
-          }
-        }
+        hideProcessing();
+        setEmptyAndRender(); // This will auto-select the last uploaded image
         
         toast(`Added ${files.length} image${files.length > 1 ? 's' : ''}`);
       });
@@ -722,7 +647,7 @@
             const compressed = await ensureCompressed(item, quality);
             await navigator.clipboard.write([
               new ClipboardItem({
-                [compressed.type]: compressed
+                [compressed.blob.type]: compressed.blob
               })
             ]);
             toast('Image copied to clipboard');
@@ -733,8 +658,8 @@
         } else if (action === 'download') {
           const compressed = await ensureCompressed(item, quality);
           const link = document.createElement('a');
-          link.href = URL.createObjectURL(compressed);
-          link.download = `compressed_${item.name}`;
+          link.href = URL.createObjectURL(compressed.blob);
+          link.download = item.name.replace(/(\.[^.]+)$/, '-compressed$1');
           link.click();
           URL.revokeObjectURL(link.href);
           toast('Image downloaded');
@@ -788,7 +713,7 @@
 
     // Initialize
     setEmptyState();
-    syncQualityInputs();
+    syncQualityInputs(100);
     
     console.log('WordPress Image Compressor: Initialized successfully with all original features');
   });
