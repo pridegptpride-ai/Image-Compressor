@@ -384,12 +384,6 @@
       setTimeout(() => {
         testClipboardAPI();
       }, 500);
-      
-      // Test toast after a short delay
-      setTimeout(() => {
-        console.log('Testing toast function...');
-        toast('Toast function test - if you see this, toast is working!');
-      }, 1000);
     });
 
     function setEmptyState() { 
@@ -844,15 +838,6 @@
       resetToolBtn.addEventListener('click', () => {
         pendingReset = true;
         if (confirmModal) confirmModal.showModal();
-      });
-    }
-
-    // Test toast button
-    const testToastBtn = document.getElementById('wp-test-toast');
-    if (testToastBtn) {
-      testToastBtn.addEventListener('click', () => {
-        console.log('Test toast button clicked');
-        toast('This is a test toast message!');
       });
     }
 

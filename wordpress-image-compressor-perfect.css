@@ -244,25 +244,49 @@
 }
 
 .wp-btn.danger {
-  background: #8B0000;
-  color: #fff;
-  border-color: #8B0000;
+  background: #8B0000 !important;
+  color: #fff !important;
+  border-color: #8B0000 !important;
 }
 
 .wp-btn.danger:hover {
-  background: #8B0000;
-  color: #fff;
+  background: #8B0000 !important;
+  color: #fff !important;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 .wp-btn.danger:active {
-  background: #8B0000;
-  color: #fff;
+  background: #8B0000 !important;
+  color: #fff !important;
 }
 
 .wp-btn.danger:focus {
-  background: #8B0000;
-  color: #fff;
+  background: #8B0000 !important;
+  color: #fff !important;
+  box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.25);
+}
+
+/* Ensure delete all button also has dark red background */
+#wp-icon-delete-all {
+  background: #8B0000 !important;
+  color: #fff !important;
+  border-color: #8B0000 !important;
+}
+
+#wp-icon-delete-all:hover {
+  background: #8B0000 !important;
+  color: #fff !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+#wp-icon-delete-all:active {
+  background: #8B0000 !important;
+  color: #fff !important;
+}
+
+#wp-icon-delete-all:focus {
+  background: #8B0000 !important;
+  color: #fff !important;
   box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.25);
 }
 
@@ -395,42 +419,92 @@
 /* Filter Group */
 .wp-filter-group {
   position: relative;
+  display: inline-block;
 }
 
+#wp-icon-filter {
+  position: relative;
+  z-index: 1001;
+  background: #8B0000 !important;
+  color: #fff !important;
+  border-color: #8B0000 !important;
+}
+
+#wp-icon-filter:hover {
+  background: #8B0000 !important;
+  color: #fff !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+#wp-icon-filter:active {
+  background: #8B0000 !important;
+  color: #fff !important;
+}
+
+#wp-icon-filter:focus {
+  background: #8B0000 !important;
+  color: #fff !important;
+  box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.25);
+}
+
+/* Filter Menu */
 .wp-filter-menu {
   position: absolute;
-  top: 48px;
+  top: 100%;
   left: 0;
-  min-width: 200px;
   background: #fff;
   border: 1px solid var(--border);
   border-radius: 12px;
   box-shadow: var(--shadow);
-  z-index: 1000;
-  padding: 6px;
+  padding: 8px 0;
   margin: 0;
+  min-width: 160px;
+  z-index: 1000;
+  display: none;
+  overflow: visible;
+  max-height: none;
+  transform: translateY(4px);
+}
+
+/* Ensure filter menu appears over all containers */
+.wp-filter-menu.show {
+  display: block;
+  z-index: 10000;
 }
 
 .wp-menu-item {
-  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: none;
+  font-weight: 400;
+  margin: 0;
+  white-space: nowrap;
+  overflow: visible;
   text-align: left;
+  width: 100%;
   border: none;
   background: #fff;
-  padding: 10px 12px;
-  border-radius: 10px;
-  cursor: pointer;
   color: var(--text);
   font-family: inherit;
   font-size: 14px;
-  font-weight: 400;
-  transition: none;
-  margin: 0;
+  line-height: 1.4;
 }
 
 .wp-menu-item:hover {
-  background: rgba(99, 0, 226, 0.06);
+  background: rgba(99, 0, 226, 0.05);
   color: var(--primary);
   transform: none;
+}
+
+.wp-menu-item:first-child {
+  border-radius: 12px 12px 0 0;
+}
+
+.wp-menu-item:last-child {
+  border-radius: 0 0 12px 12px;
 }
 
 /* Empty State */
